@@ -25,7 +25,9 @@ android {
 
 dependencies {
 
-
+    api deps.checkerframework.qual
+    implementation deps.androidx.annotation
+    implementation deps.androidx.compat
     testImplementation deps.junit
     androidTestImplementation deps.androidx.test.junit
     androidTestImplementation deps.androidx.test.espresso_core
