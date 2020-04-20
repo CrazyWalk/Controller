@@ -1,0 +1,9 @@
+apply plugin: 'java-library'
+
+dependencies {
+    implementation deps.androidx.annotation
+    implementation deps.androidx.lifecycle.common
+}
+
+sourceCompatibility = "7"
+targetCompatibility = "7"

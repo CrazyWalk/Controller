@@ -1,0 +1,5 @@
+rootProject.name='Controller'
+include ':app'
+include ':controller-annotation'
+include ':controller-api'
+include ':controller-compiler'

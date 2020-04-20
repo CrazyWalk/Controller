@@ -1,0 +1,15 @@
+apply plugin: 'java-library'
+
+dependencies {
+    implementation deps.auto.common
+    api deps.javapoet
+    implementation deps.auto.service
+    annotationProcessor deps.auto.service
+    // implementation project(':core')
+    compileOnly files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
+    implementation project(':controller-annotation')
+    implementation deps.androidx.lifecycle.common
+}
+
+sourceCompatibility = "7"
+targetCompatibility = "7"
