@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/demoButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Demo" />
+
+    <Button
+        android:id="@+id/bindViewButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="bindView" />
+
+    <Button
+        android:id="@+id/bundleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bundle" />
+
+    <Button
+        android:id="@+id/activityResultButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Activity Result" />
+
+    <Button
+        android:id="@+id/permissionResultButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Permission Result" />
+
+
+    <Button
+        android:id="@+id/lifecycleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="lifecycle" />
+
+    <Button
+        android:id="@+id/fragmentOrOtherButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="fragmentOrOther" />
+</androidx.appcompat.widget.LinearLayoutCompat>

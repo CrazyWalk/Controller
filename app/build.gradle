@@ -24,11 +24,16 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    //controller
+    implementation project(':controller-annotation')
+    implementation project(':controller-api')
+    annotationProcessor project(':controller-compiler')
 
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation deps.androidx.constraintlayout
+    implementation deps.androidx.recyclerview
+
+    testImplementation deps.junit
+    androidTestImplementation deps.androidx.test.junit
+    androidTestImplementation deps.androidx.test.espresso_core
 }

@@ -9,13 +9,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".activity.HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activity.BundleValueActivity" />
+        <activity android:name=".activity.OnPermissionResultActivity" />
+        <activity android:name=".activity.BindViewActivity" />
+        <activity android:name=".activity.LifecycleEventActivity" />
+        <activity android:name=".activity.FragmentAndOtherActivity"/>
+
     </application>
 
 </manifest>

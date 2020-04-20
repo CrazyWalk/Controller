@@ -5,7 +5,8 @@ buildscript {
     ext.versions = [
             'minSdk'    : 21,
             'compileSdk': 29,
-            'buildToolsVersion':"29.0.3"
+            'buildToolsVersion':"29.0.3",
+            'incap' : '0.2'
     ]
     ext.deps = [
             'androidx'        : [
@@ -33,7 +34,11 @@ buildscript {
                     'qual': 'org.checkerframework:checker-qual-android:3.2.0'
             ],
             javapoet          : 'com.squareup:javapoet:1.10.0',
-            junit             : 'junit:junit:4.12'
+            junit             : 'junit:junit:4.12',
+            'incap'           : [
+                    'runtime'  : "net.ltgt.gradle.incap:incap:${versions.incap}",
+                    'processor': "net.ltgt.gradle.incap:incap-processor:${versions.incap}",
+            ]
 
     ]
 
@@ -56,7 +61,13 @@ allprojects {
     repositories {
         google()
         jcenter()
-        
+        tasks.withType(Javadoc) {
+            options {
+                encoding "UTF-8"
+                charSet 'UTF-8'
+                links "http://docs.oracle.com/javase/7/docs/api"
+            }
+        }
     }
 }
 
