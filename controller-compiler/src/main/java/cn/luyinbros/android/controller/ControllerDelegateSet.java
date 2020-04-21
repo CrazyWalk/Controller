@@ -43,6 +43,7 @@ public class ControllerDelegateSet {
     private final DisposeBindingProvider disposeBindingProvider;
     private final ActivityResultBindingProvider activityResultBindingProvider;
     private final PermissionResultBindingProvider permissionResultBindingProvider;
+    private ControllerDelegateSet mParent;
 
     public ControllerDelegateSet(Builder builder) {
         this.targetClassName = builder.targetClassName;
@@ -59,13 +60,23 @@ public class ControllerDelegateSet {
 
     }
 
-    public ClassName getTargetClassName() {
-        return targetClassName;
+    public void setParent(ControllerDelegateSet parent) {
+        this.mParent = parent;
     }
 
-    public ClassName getDelegateClassName() {
-        return delegateClassName;
+    public ControllerDelegateSet getParent() {
+        return mParent;
     }
+
+
+    public boolean isBuildNewView() {
+        if (mParent != null) {
+            return mParent.isBuildNewView() || bindViewProvider.isBuildNewView();
+        }
+
+        return false;
+    }
+
 
     JavaFile brewJava() {
         final TypeSpec bindingConfiguration = createTypeSpec();
@@ -84,16 +95,20 @@ public class ControllerDelegateSet {
             result.addModifiers(FINAL);
         }
 
-        switch (controllerDelegateInfo.getType()) {
-            case ACTIVITY:
-                result.superclass(Constants.CLASS_DELEGATE_ACTIVITY);
-                break;
-            case FRAGMENT:
-                result.superclass(Constants.CLASS_DELEGATE_FRAGMENT);
-                break;
-            default:
-                result.superclass(Constants.CLASS_DELEGATE_COMMON);
-                break;
+        if (mParent != null) {
+            result.superclass(mParent.delegateClassName);
+        } else {
+            switch (controllerDelegateInfo.getType()) {
+                case ACTIVITY:
+                    result.superclass(Constants.CLASS_DELEGATE_ACTIVITY);
+                    break;
+                case FRAGMENT:
+                    result.superclass(Constants.CLASS_DELEGATE_FRAGMENT);
+                    break;
+                default:
+                    result.superclass(Constants.CLASS_DELEGATE_COMMON);
+                    break;
+            }
         }
 
         //field
@@ -110,10 +125,11 @@ public class ControllerDelegateSet {
                 .addStatement("this.target=target").build());
 
         initStateBindingProvider.code(result, controllerDelegateInfo);
-        bindViewProvider.code(result);
+
+
+        bindViewProvider.code(enclosingElement,result, mParent != null && mParent.isBuildNewView());
         lifecycleBindingProvider.code(result);
         disposeBindingProvider.code(result,
-                controllerDelegateInfo.getType() != ControllerDelegateInfo.Type.OTHER ? "dispose" : "internalDispose",
                 bindViewProvider.dispose());
         activityResultBindingProvider.code(result);
         permissionResultBindingProvider.code(result);
@@ -146,11 +162,11 @@ public class ControllerDelegateSet {
 
     }
 
-    static ClassName getDelegateClassName(TypeElement typeElement) {
+    private static ClassName getDelegateClassName(TypeElement typeElement) {
         String packageName = Utils.getPackageName(typeElement);
         String className = typeElement.getQualifiedName().toString().substring(
                 packageName.length() + 1).replace('.', '$');
-        return ClassName.get(packageName, className+"_ControllerDelegate");
+        return ClassName.get(packageName, className + "_ControllerDelegate");
 
 //        String generationClassName;
 //        int hashCode = className.hashCode();
@@ -162,6 +178,19 @@ public class ControllerDelegateSet {
 //        return ClassName.get(packageName,generationClassName);
 
 
+    }
+
+
+    @Override
+    public String toString() {
+        return "ControllerDelegateSet{" + "\n" +
+                "targetClassName=" + targetClassName + "\n" +
+                ", controllerDelegateInfo=" + controllerDelegateInfo + "\n" +
+                ", targetTypeName=" + targetTypeName + "\n" +
+                ", delegateClassName=" + delegateClassName + "\n" +
+                ", enclosingElement=" + enclosingElement + "\n" +
+                ", mParent=" + mParent + "\n" +
+                '}' + "\n";
     }
 
     final static class Builder {

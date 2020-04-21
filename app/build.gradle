@@ -1,4 +1,9 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.jakewharton.butterknife'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
 
 android {
     compileSdkVersion 29
@@ -21,19 +26,21 @@ android {
         }
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
+
 dependencies {
-    //controller
-    implementation project(':controller-annotation')
-    implementation project(':controller-api')
-    annotationProcessor project(':controller-compiler')
-
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation deps.androidx.constraintlayout
-    implementation deps.androidx.recyclerview
-
-    testImplementation deps.junit
-    androidTestImplementation deps.androidx.test.junit
-    androidTestImplementation deps.androidx.test.espresso_core
+    implementation project(':base')
+    implementation 'com.github.CrazyWalk:Logger:0.9.2'
+    kapt project(':controller-compiler')
+    implementation "androidx.core:core-ktx:+"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    //annotationProcessor project(':controller-compiler')
+}
+repositories {
+    mavenCentral()
 }

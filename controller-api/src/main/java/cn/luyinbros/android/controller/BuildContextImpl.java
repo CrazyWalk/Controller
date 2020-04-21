@@ -10,16 +10,16 @@ import android.view.ViewGroup;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public final class BuildContextImpl implements BuildContext {
+final class BuildContextImpl implements BuildContext {
     private final Context mContext;
     private final Bundle mSavedInstanceState;
     private final LayoutInflater mInflater;
     private final ViewGroup mParent;
 
-    public BuildContextImpl(Context context,
-                            Bundle savedInstanceState,
-                            LayoutInflater inflater,
-                            ViewGroup parent) {
+    BuildContextImpl(Context context,
+                     Bundle savedInstanceState,
+                     LayoutInflater inflater,
+                     ViewGroup parent) {
         this.mContext = context;
         this.mSavedInstanceState = savedInstanceState;
         this.mInflater = inflater;

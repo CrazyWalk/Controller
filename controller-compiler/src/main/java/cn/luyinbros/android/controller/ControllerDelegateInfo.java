@@ -35,4 +35,14 @@ public class ControllerDelegateInfo {
     public void setType(Type type) {
         this.mType = type;
     }
+
+
+    @Override
+    public String toString() {
+        return "ControllerDelegateInfo{" +
+                "layoutId=" + layoutId +
+                ", mType=" + mType +
+                ", isFinal=" + isFinal +
+                '}';
+    }
 }

@@ -24,7 +24,7 @@ public class DisposeBindingProvider {
         return disposeBindings == null || disposeBindings.isEmpty();
     }
 
-    public void code(TypeSpec.Builder result,String disposeMethodName,CodeBlock... disposes) {
+    public void code(TypeSpec.Builder result,CodeBlock... disposes) {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("dispose")
                 .addAnnotation(Override.class)
                 .addModifiers(PUBLIC)

@@ -24,9 +24,6 @@ public abstract class ControllerFragmentDelegate {
         this.sourceFragment = fragment;
     }
 
-    public static ControllerFragmentDelegate create(Fragment fragment) {
-        return null;
-    }
 
     @Nullable
     public View onCreateView(@androidx.annotation.NonNull LayoutInflater inflater, @androidx.annotation.Nullable ViewGroup container,

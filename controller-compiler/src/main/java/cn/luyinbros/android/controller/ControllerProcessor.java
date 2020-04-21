@@ -34,6 +34,9 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 
 import cn.luyinbros.android.controller.annotation.BindView;
 import cn.luyinbros.android.controller.annotation.BindViews;
@@ -57,7 +60,7 @@ import cn.luyinbros.compiler.ElementHelper;
 
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@IncrementalAnnotationProcessor(IncrementalAnnotationProcessorType.ISOLATING)
+@IncrementalAnnotationProcessor(IncrementalAnnotationProcessorType.DYNAMIC)
 @AutoService(Processor.class)
 public class ControllerProcessor extends AbstractProcessor {
     private Filer mFilter;
@@ -138,7 +141,9 @@ public class ControllerProcessor extends AbstractProcessor {
     }
 
     private Map<TypeElement, ControllerDelegateSet> findAndParseTargets(RoundEnvironment env) {
+
         final Map<TypeElement, ControllerDelegateSet.Builder> builderMap = new LinkedHashMap<>();
+
         final Set<TypeElement> erasedTargetNames = new LinkedHashSet<>();
         for (Element element : env.getElementsAnnotatedWith(Controller.class)) {
             if (!SuperficialValidation.validateElement(element)) continue;
@@ -231,10 +236,26 @@ public class ControllerProcessor extends AbstractProcessor {
             }
         }
 
+
         final Map<TypeElement, ControllerDelegateSet> controllerDelegate = new LinkedHashMap<>();
         for (Map.Entry<TypeElement, ControllerDelegateSet.Builder> builderEntry : builderMap.entrySet()) {
             controllerDelegate.put(builderEntry.getKey(), builderEntry.getValue().build());
         }
+
+        for (Map.Entry<TypeElement, ControllerDelegateSet> entry : controllerDelegate.entrySet()) {
+
+            TypeElement superClass = getSuperClass(entry.getKey());
+            while (superClass != null) {
+                if (controllerDelegate.containsKey(superClass)) {
+                    controllerDelegate.get(entry.getKey()).setParent(controllerDelegate.get(superClass));
+                    break;
+                }
+                superClass = getSuperClass(superClass);
+            }
+
+        }
+        CompileMessager.note(controllerDelegate.toString());
+
         return controllerDelegate;
     }
 
@@ -400,7 +421,7 @@ public class ControllerProcessor extends AbstractProcessor {
     }
 
     private ResId elementToId(Element element, Class<? extends Annotation> annotation, int value) {
-       // CompileMessager.warn("elementToId " + getMirror(element, annotation).toString());
+        // CompileMessager.warn("elementToId " + getMirror(element, annotation).toString());
         JCTree tree = (JCTree) trees.getTree(element, getMirror(element, annotation));
         if (tree != null) { // tree can be null if the references are compiled types and not source
             rScanner.reset();
@@ -418,7 +439,7 @@ public class ControllerProcessor extends AbstractProcessor {
     public Map<Integer, ResId> elementToIds(Element element,
                                             AnnotationMirror mirror,
                                             int[] values) {
-      //  CompileMessager.warn("elementToIds " + mirror.toString());
+        //  CompileMessager.warn("elementToIds " + mirror.toString());
         Map<Integer, ResId> resourceIds = new LinkedHashMap<>();
         JCTree tree = (JCTree) trees.getTree(element, mirror);
         if (tree != null) { // tree can be null if the references are compiled types and not source
@@ -446,6 +467,14 @@ public class ControllerProcessor extends AbstractProcessor {
         return null;
     }
 
+    private @Nullable TypeElement getSuperClass(TypeElement typeElement) {
+        TypeMirror type = typeElement.getSuperclass();
+        if (type.getKind() == TypeKind.NONE) {
+            return null;
+        }
+        return (TypeElement) ((DeclaredType) type).asElement();
+    }
+
     private static void error(Element element, Throwable e) {
         StackTraceElement[] stackTraceElementArray = e.getStackTrace();
         StringBuilder sb = new StringBuilder();
@@ -463,11 +492,11 @@ public class ControllerProcessor extends AbstractProcessor {
         public void visitIdent(JCTree.JCIdent jcIdent) {
             super.visitIdent(jcIdent);
             Symbol symbol = jcIdent.sym;
-         //   CompileMessager.warn("visitIdent " + symbol.getClass());
+            //   CompileMessager.warn("visitIdent " + symbol.getClass());
 
 
             if (symbol.type instanceof Type.JCPrimitiveType) {
-            //    CompileMessager.warn("visitIdent  JCPrimitiveType");
+                //    CompileMessager.warn("visitIdent  JCPrimitiveType");
                 ResId id = parseId(symbol);
                 if (id != null) {
                     resourceIds.put(id.getId(), id);
@@ -478,7 +507,7 @@ public class ControllerProcessor extends AbstractProcessor {
         @Override
         public void visitSelect(JCTree.JCFieldAccess jcFieldAccess) {
             Symbol symbol = jcFieldAccess.sym;
-         //   CompileMessager.warn("visitSelect");
+            //   CompileMessager.warn("visitSelect");
             ResId id = parseId(symbol);
             if (id != null) {
                 resourceIds.put(id.getId(), id);
@@ -493,7 +522,7 @@ public class ControllerProcessor extends AbstractProcessor {
 //                Symbol.ClassSymbol classSymbol= (Symbol.ClassSymbol)symbol;
 //                CompileMessager.warn(classSymbol);
 //            }
-         //   CompileMessager.warn("parseId symbol  " + symbol + "  " + symbol.getClass());
+            //   CompileMessager.warn("parseId symbol  " + symbol + "  " + symbol.getClass());
 
             if (symbol.getEnclosingElement() != null
                     && symbol.getEnclosingElement().getEnclosingElement() != null
@@ -511,7 +540,7 @@ public class ControllerProcessor extends AbstractProcessor {
 
         @Override
         public void visitLiteral(JCTree.JCLiteral jcLiteral) {
-         //   CompileMessager.warn("visitLiteral");
+            //   CompileMessager.warn("visitLiteral");
             try {
                 int value = (Integer) jcLiteral.value;
                 resourceIds.put(value, new ResId(value));
@@ -524,14 +553,14 @@ public class ControllerProcessor extends AbstractProcessor {
         @Override
         public void visitTypeArray(JCTree.JCArrayTypeTree jcArrayTypeTree) {
             super.visitTypeArray(jcArrayTypeTree);
-          //  CompileMessager.warn("visitTypeArray");
+            //  CompileMessager.warn("visitTypeArray");
         }
 
         @Override
         public void visitNewArray(JCTree.JCNewArray jcNewArray) {
             super.visitNewArray(jcNewArray);
-         //  JCTree.JCExpression expressionList = jcNewArray.elems.get(0);
-         //   CompileMessager.warn("visitNewArray  " + expressionList.getKind());
+//            JCTree.JCExpression expressionList = jcNewArray.elems.get(0);
+//            CompileMessager.warn("visitNewArray  " + expressionList.getKind());
 
         }
 

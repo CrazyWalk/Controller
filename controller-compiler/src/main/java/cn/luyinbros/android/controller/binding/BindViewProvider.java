@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 
 import cn.luyinbros.android.controller.CompileMessager;
@@ -44,6 +45,10 @@ public class BindViewProvider {
         this.listenerBindingProvider = listenerBindingProvider;
     }
 
+    public boolean isBuildNewView() {
+        return bindViewBinding != null || controllerDelegateInfo.getLayoutId() != null;
+    }
+
 
     public void addBinding(BuildViewBinding binding) {
         if (binding.getReturnClassName() != null) {
@@ -65,14 +70,28 @@ public class BindViewProvider {
     }
 
 
-    public void code(TypeSpec.Builder result) {
+    public void code(TypeElement typeElement, TypeSpec.Builder result, boolean isParentBuildNewView) {
+        if (isParentBuildNewView) {
+            if (isBuildNewView()) {
+                CompileMessager.error(typeElement, "父类已经构建了视图,无法重复构建");
+                return;
+            }
+        }
+
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("buildView")
                 .addAnnotation(Override.class)
                 .addModifiers(PUBLIC)
                 .addParameter(Constants.INTERFACE_BUILD_CONTEXT, "buildContext")
                 .returns(Constants.CLASS_VIEW);
         ResId layoutId = controllerDelegateInfo.getLayoutId();
-        if (bindViewBinding != null) {
+        if (isParentBuildNewView) {
+            methodBuilder.addStatement("$T view=super.buildView($L)",
+                    Constants.CLASS_VIEW,
+                    "buildContext");
+            methodBuilder.addCode(bindViewCodeBlock(result));
+            generationBuildView(methodBuilder);
+            methodBuilder.addStatement("return view");
+        } else if (bindViewBinding != null) {
             if (layoutId != null) {
                 CompileMessager.warn("layoutId: " + layoutId.getCode() + " override");
             }

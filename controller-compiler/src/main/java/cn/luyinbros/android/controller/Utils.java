@@ -119,11 +119,7 @@ public class Utils {
         }
     }
 
-    /**
-     * @param element
-     * @return
-     * @see com.google.auto.common.MoreElements#getPackage(Element)
-     */
+
     public static String getPackageName(Element element) {
         while (element.getKind() != ElementKind.PACKAGE) {
             element = element.getEnclosingElement();
