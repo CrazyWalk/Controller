@@ -3,7 +3,8 @@ package cn.luyinbros.demo.activity;
 import android.os.Bundle;
 import android.os.Parcelable;
 
-import org.jetbrains.annotations.NotNull;
+
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,7 +89,8 @@ public class BundleValueActivity extends BaseActivity {
     }
 
 
-    @NotNull
+
+    @NonNull
     @Override
     public String toString() {
         return "BundleValueActivity{" +

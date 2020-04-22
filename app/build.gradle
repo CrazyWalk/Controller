@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.jakewharton.butterknife'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
+//apply plugin: 'kotlin-android'
+//apply plugin: 'kotlin-android-extensions'
+//apply plugin: 'kotlin-kapt'
 
 
 android {
@@ -38,15 +38,15 @@ dependencies {
     implementation deps.androidx.compat
     implementation deps.androidx.recyclerview
     implementation deps.androidx.constraintlayout
-    implementation 'com.github.CrazyWalk:Logger:1.0.0-beta1'
+    implementation deps.logger
     implementation project(':controller-api')
     implementation project(':controller-annotation')
-    kapt project(':controller-compiler')
+    annotationProcessor project(':controller-compiler')
 
 
 
-    implementation "androidx.core:core-ktx:1.2.0"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    //implementation "androidx.core:core-ktx:1.2.0"
+    //implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     //annotationProcessor project(':controller-compiler')
 }
 repositories {

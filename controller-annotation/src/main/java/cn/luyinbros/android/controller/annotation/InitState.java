@@ -7,13 +7,13 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * <per><code>
- * @InitState
- * public void initState(BuildContext buildContext)
+ * <per>
+ * <code>
  *
- * @InitState
- * public void initState()
- * <per/><code/>
+ * @InitState public void initState(BuildContext buildContext)
+ * @InitState public void initState()
+ * <per/>
+ * <code/>
  */
 
 @Retention(RUNTIME)
