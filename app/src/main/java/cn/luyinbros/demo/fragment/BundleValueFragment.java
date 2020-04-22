@@ -8,10 +8,10 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import cn.luyinbros.android.controller.annotation.BundleValue;
-import cn.luyinbros.android.controller.annotation.Controller;
-import cn.luyinbros.android.controller.annotation.InitState;
-import cn.luyinbros.android.controller.annotation.Option;
+import cn.luyinbros.valleyframework.controller.annotation.BundleValue;
+import cn.luyinbros.valleyframework.controller.annotation.Controller;
+import cn.luyinbros.valleyframework.controller.annotation.InitState;
+import cn.luyinbros.valleyframework.controller.annotation.Option;
 import cn.luyinbros.demo.R;
 import cn.luyinbros.demo.base.BaseFragment;
 import cn.luyinbros.demo.data.ParcelableObject;

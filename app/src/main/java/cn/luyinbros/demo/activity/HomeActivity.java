@@ -3,7 +3,7 @@ package cn.luyinbros.demo.activity;
 
 import android.content.Intent;
 
-import cn.luyinbros.android.controller.annotation.Controller;
+import cn.luyinbros.valleyframework.controller.annotation.Controller;
 import cn.luyinbros.demo.R;
 import cn.luyinbros.demo.base.BaseActivity;
 import cn.luyinbros.demo.controller.OnSingleClick;

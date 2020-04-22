@@ -1,18 +1,14 @@
 package cn.luyinbros.demo.fragment;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
-import cn.luyinbros.android.controller.annotation.Controller;
-import cn.luyinbros.android.controller.annotation.OnActivityResult;
-import cn.luyinbros.android.controller.annotation.OnTextChanged;
+import cn.luyinbros.valleyframework.controller.annotation.Controller;
+import cn.luyinbros.valleyframework.controller.annotation.OnActivityResult;
+import cn.luyinbros.valleyframework.controller.annotation.OnTextChanged;
 import cn.luyinbros.demo.R;
 import cn.luyinbros.demo.activity.OnActivityResultActivity;
-import cn.luyinbros.demo.base.BaseActivity;
 import cn.luyinbros.demo.base.BaseFragment;
 import cn.luyinbros.demo.controller.OnSingleClick;
 import cn.luyinbros.logger.Logger;

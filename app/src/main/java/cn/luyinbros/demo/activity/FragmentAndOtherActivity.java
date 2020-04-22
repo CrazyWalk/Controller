@@ -12,9 +12,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
-import cn.luyinbros.android.controller.annotation.BindView;
-import cn.luyinbros.android.controller.annotation.BuildView;
-import cn.luyinbros.android.controller.annotation.Controller;
+import cn.luyinbros.valleyframework.controller.annotation.BindView;
+import cn.luyinbros.valleyframework.controller.annotation.BuildView;
+import cn.luyinbros.valleyframework.controller.annotation.Controller;
 import cn.luyinbros.demo.R;
 import cn.luyinbros.demo.base.BaseActivity;
 import cn.luyinbros.demo.base.RecyclerViewItemController;

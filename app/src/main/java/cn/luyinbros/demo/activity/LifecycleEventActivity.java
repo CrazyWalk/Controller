@@ -2,9 +2,9 @@ package cn.luyinbros.demo.activity;
 
 import androidx.lifecycle.Lifecycle;
 
-import cn.luyinbros.android.controller.annotation.Controller;
-import cn.luyinbros.android.controller.annotation.DidChangeLifecycleEvent;
-import cn.luyinbros.android.controller.annotation.Dispose;
+import cn.luyinbros.valleyframework.controller.annotation.Controller;
+import cn.luyinbros.valleyframework.controller.annotation.DidChangeLifecycleEvent;
+import cn.luyinbros.valleyframework.controller.annotation.Dispose;
 import cn.luyinbros.demo.R;
 import cn.luyinbros.demo.base.BaseActivity;
 import cn.luyinbros.logger.Logger;

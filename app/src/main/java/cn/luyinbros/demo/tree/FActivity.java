@@ -3,8 +3,8 @@ package cn.luyinbros.demo.tree;
 
 import android.widget.TextView;
 
-import cn.luyinbros.android.controller.annotation.BindView;
-import cn.luyinbros.android.controller.annotation.Controller;
+import cn.luyinbros.valleyframework.controller.annotation.BindView;
+import cn.luyinbros.valleyframework.controller.annotation.Controller;
 import cn.luyinbros.demo.R;
 
 @Controller

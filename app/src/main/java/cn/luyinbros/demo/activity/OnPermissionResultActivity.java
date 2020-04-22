@@ -1,17 +1,15 @@
 package cn.luyinbros.demo.activity;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.Intent;
 
 import androidx.core.app.ActivityCompat;
 
 import java.util.Arrays;
 
-import cn.luyinbros.android.controller.Controllers;
-import cn.luyinbros.android.controller.annotation.Controller;
-import cn.luyinbros.android.controller.annotation.OnPermissionResult;
-import cn.luyinbros.android.controller.annotation.OnTextChanged;
+import cn.luyinbros.valleyframework.controller.Controllers;
+import cn.luyinbros.valleyframework.controller.annotation.Controller;
+import cn.luyinbros.valleyframework.controller.annotation.OnPermissionResult;
+import cn.luyinbros.valleyframework.controller.annotation.OnTextChanged;
 import cn.luyinbros.demo.R;
 import cn.luyinbros.demo.base.BaseActivity;
 import cn.luyinbros.demo.controller.OnSingleClick;

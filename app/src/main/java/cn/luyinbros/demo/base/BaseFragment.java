@@ -10,8 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import cn.luyinbros.android.controller.ControllerDelegate;
-import cn.luyinbros.android.controller.ControllerFragmentDelegate;
+import cn.luyinbros.valleyframework.controller.ControllerDelegate;
+import cn.luyinbros.valleyframework.controller.ControllerFragmentDelegate;
 import cn.luyinbros.logger.Logger;
 import cn.luyinbros.logger.LoggerFactory;
 
