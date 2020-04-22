@@ -1,4 +1,4 @@
-package cn.luyinbros.demo.activity;
+package cn.luyinbros.demo.fragment;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,21 +11,23 @@ import cn.luyinbros.android.controller.annotation.Controller;
 import cn.luyinbros.android.controller.annotation.OnActivityResult;
 import cn.luyinbros.android.controller.annotation.OnTextChanged;
 import cn.luyinbros.demo.R;
+import cn.luyinbros.demo.activity.OnActivityResultActivity;
 import cn.luyinbros.demo.base.BaseActivity;
+import cn.luyinbros.demo.base.BaseFragment;
 import cn.luyinbros.demo.controller.OnSingleClick;
 import cn.luyinbros.logger.Logger;
 import cn.luyinbros.logger.LoggerFactory;
 
 @Controller(R.layout.activity_on_result)
-public class OnActivityResultActivity extends BaseActivity {
-    private Logger logger = LoggerFactory.getLogger(OnActivityResultActivity.class);
+public class OnActivityResultFragment extends BaseFragment {
+    private Logger logger = LoggerFactory.getLogger(OnActivityResultFragment.class);
     private int requestCode = 1;
 
 
     @OnSingleClick(R.id.requestButton)
     void onRequestClick() {
         if (requestCode >= 1) {
-            startActivityForResult(new Intent(this, StubActivity.class)
+            startActivityForResult(new Intent(requireContext(), OnActivityResultActivity.StubActivity.class)
                             .putExtra("requestCode", requestCode),
                     requestCode);
         }
@@ -89,29 +91,5 @@ public class OnActivityResultActivity extends BaseActivity {
     }
 
 
-    public static class StubActivity extends AppCompatActivity {
 
-
-        @Override
-        protected void onCreate(@Nullable Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            Intent intent = getIntent();
-            int requestCode = intent.getIntExtra("requestCode", 1);
-            if (requestCode == 1) {
-                setResult(Activity.RESULT_OK);
-            } else if (requestCode == 2) {
-                setResult(Activity.RESULT_OK, new Intent());
-            } else if (requestCode == 3) {
-                setResult(3);
-            } else if (requestCode == 4) {
-                setResult(3, new Intent());
-            } else if (requestCode == 5) {
-                setResult(3, new Intent());
-            }
-            finish();
-
-        }
-
-
-    }
 }

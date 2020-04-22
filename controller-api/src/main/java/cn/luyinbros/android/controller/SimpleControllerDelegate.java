@@ -27,11 +27,17 @@ public abstract class SimpleControllerDelegate {
         mView = buildView(buildContext);
     }
 
-    public void dispose() {
+
+    public void unbind() {
+        target = null;
         if (mView != null) {
             mView = null;
-            internalDispose();
+            dispose();
         }
+    }
+
+    protected void dispose() {
+
     }
 
 
@@ -44,10 +50,6 @@ public abstract class SimpleControllerDelegate {
         return null;
     }
 
-
-    protected void internalDispose() {
-        //empty
-    }
 
     public final View getView() {
         return mView;

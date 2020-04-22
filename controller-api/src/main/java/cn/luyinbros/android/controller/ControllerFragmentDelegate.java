@@ -24,7 +24,11 @@ public abstract class ControllerFragmentDelegate {
         this.sourceFragment = fragment;
     }
 
-
+    /**
+     * 初始化及视图创建
+     *
+     * @see Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)
+     */
     @Nullable
     public View onCreateView(@androidx.annotation.NonNull LayoutInflater inflater, @androidx.annotation.Nullable ViewGroup container,
                              @androidx.annotation.Nullable Bundle savedInstanceState) {
@@ -34,10 +38,16 @@ public abstract class ControllerFragmentDelegate {
                 inflater,
                 container);
         initState(mBuildContext);
-        return buildView(mBuildContext);
+        mView = buildView(mBuildContext);
+        return mView;
     }
 
+    /**
+     * 视图已被创建
+     * @see  Fragment#onViewCreated(View, Bundle)
+     */
     public void onViewCreated(@androidx.annotation.NonNull View view, @androidx.annotation.Nullable Bundle savedInstanceState) {
+
         mFragment.getViewLifecycleOwner().getLifecycle().addObserver(new LifecycleEventObserver() {
             @Override
             public void onStateChanged(@androidx.annotation.NonNull LifecycleOwner source, @androidx.annotation.NonNull Lifecycle.Event event) {
@@ -50,23 +60,44 @@ public abstract class ControllerFragmentDelegate {
         mBuildContext = null;
     }
 
+    /**
+     * 接收onRequestPermissionsResult 回调
+     *
+     * @see Fragment#onRequestPermissionsResult(int, String[], int[])
+     */
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         //empty
     }
 
+    /**
+     * onActivityResult 回调
+     *
+     * @see Fragment#onActivityResult(int, int, Intent)
+     */
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         //empty
     }
 
-
-    private void destroy() {
+    /**
+     * 解除fragment与delegate的关系
+     *
+     * @see Fragment#onDetach()
+     */
+    public void unbind() {
         if (sourceFragment != null) {
             sourceFragment = null;
             mFragment = null;
+        }
+    }
+
+
+    private void destroy() {
+        if (mView != null) {
             mView = null;
             dispose();
         }
     }
+
 
 
     protected void initState(BuildContext buildContext) {

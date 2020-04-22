@@ -8,11 +8,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import cn.luyinbros.android.controller.ControllerDelegate;
 import cn.luyinbros.android.controller.SimpleControllerDelegate;
+import cn.luyinbros.logger.LoggerFactory;
 
 public abstract class RecyclerViewItemController {
     private final SimpleControllerDelegate mDelegate = ControllerDelegate.create(this);
     public final RecyclerView.ViewHolder mHolder;
 
+    {
+        LoggerFactory.getLogger(RecyclerViewItemController.class).debug(" " + mDelegate.getClass());
+    }
 
     public RecyclerViewItemController(ViewGroup parent) {
         mDelegate.onCreate(parent.getContext(), null, parent);

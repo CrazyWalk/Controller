@@ -20,6 +20,9 @@ import cn.luyinbros.demo.base.BaseActivity;
 import cn.luyinbros.demo.base.RecyclerViewItemController;
 import cn.luyinbros.demo.controller.OnSingleClick;
 import cn.luyinbros.demo.fragment.BundleValueFragment;
+import cn.luyinbros.demo.fragment.EmptyFragment;
+import cn.luyinbros.demo.fragment.OnActivityResultFragment;
+import cn.luyinbros.demo.fragment.OnPermissionResultFragment;
 import cn.luyinbros.demo.mock.Mock;
 
 @Controller(R.layout.activity_fragment_other)
@@ -49,16 +52,22 @@ public class FragmentAndOtherActivity extends BaseActivity {
         @Override
         public Fragment getItem(int position) {
             if (position == 0) {
-                Fragment fragment=new BundleValueFragment();
+                Fragment fragment = new BundleValueFragment();
                 fragment.setArguments(Mock.testBundle());
                 return fragment;
+            } else if (position == 1) {
+                return new OnActivityResultFragment();
+            } else if (position == 2) {
+                return new OnPermissionResultFragment();
+            } else if (position == 3) {
+                return new EmptyFragment();
             }
             throw new IllegalStateException("");
         }
 
         @Override
         public int getCount() {
-            return 1;
+            return 4;
         }
     }
 

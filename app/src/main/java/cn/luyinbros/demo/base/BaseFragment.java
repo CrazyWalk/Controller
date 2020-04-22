@@ -12,10 +12,16 @@ import androidx.fragment.app.Fragment;
 
 import cn.luyinbros.android.controller.ControllerDelegate;
 import cn.luyinbros.android.controller.ControllerFragmentDelegate;
+import cn.luyinbros.logger.Logger;
+import cn.luyinbros.logger.LoggerFactory;
 
 public class BaseFragment extends Fragment {
     private ControllerFragmentDelegate mDelegate = ControllerDelegate.create(this);
+    private Logger logger = LoggerFactory.getLogger(BaseFragment.class);
 
+    {
+        logger.debug(" " + mDelegate.getClass());
+    }
 
     @Nullable
     @Override
@@ -38,5 +44,11 @@ public class BaseFragment extends Fragment {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         mDelegate.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mDelegate.unbind();
     }
 }

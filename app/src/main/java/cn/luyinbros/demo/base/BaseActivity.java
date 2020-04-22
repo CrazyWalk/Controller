@@ -9,14 +9,20 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import cn.luyinbros.android.controller.ControllerActivityDelegate;
 import cn.luyinbros.android.controller.ControllerDelegate;
+import cn.luyinbros.logger.LoggerFactory;
 
 
 public abstract class BaseActivity extends AppCompatActivity {
     private ControllerActivityDelegate mDelegate = ControllerDelegate.create(this);
 
+    {
+        LoggerFactory.getLogger(BaseActivity.class).debug(" " + mDelegate.getClass());
+    }
+
     @Override
     protected final void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         mDelegate.onCreate(savedInstanceState);
     }
 
@@ -32,5 +38,9 @@ public abstract class BaseActivity extends AppCompatActivity {
         mDelegate.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mDelegate.unbind();
+    }
 }

@@ -14,8 +14,21 @@ import java.util.Map;
 
 public class ControllerDelegate {
     private static Map<String, Constructor> cache = new HashMap<>();
-    private static List<String> noDelegate = new ArrayList<>();
+    private static final Constructor<EmptyActivityDelegate> EMPTY_ACTIVITY;
+    private static final Constructor<EmptyFragmentDelegate> EMPTY_FRAGMENT;
+    private static final Constructor<EmptySimpleControllerDelegate> EMPTY_OTHER;
     private static boolean isDebug = false;
+
+    static {
+        try {
+            EMPTY_ACTIVITY = EmptyActivityDelegate.class.getConstructor(AppCompatActivity.class);
+            EMPTY_FRAGMENT = EmptyFragmentDelegate.class.getConstructor(Fragment.class);
+            EMPTY_OTHER = EmptySimpleControllerDelegate.class.getConstructor(Object.class);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalStateException("初始化失败", e);
+        }
+    }
+
 
     public static void setDebug(boolean debug) {
         isDebug = debug;
@@ -24,88 +37,73 @@ public class ControllerDelegate {
     @NonNull
     public static ControllerActivityDelegate create(@NonNull AppCompatActivity activity) {
         String name = activity.getClass().getCanonicalName();
-        if (noDelegate.contains(name)) {
-            return new EmptyActivityDelegate(activity);
-        }
         try {
             Constructor constructor = findConstructor(activity.getClass());
             if (constructor != null) {
                 return (ControllerActivityDelegate) constructor.newInstance(activity);
+            } else {
+                cache.put(name, EMPTY_ACTIVITY);
+                return EMPTY_ACTIVITY.newInstance(activity);
             }
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            if (isDebug) {
-                new IllegalStateException(activity + " not found controller delegate", e).printStackTrace();
-            }
+            throw new IllegalStateException(activity + " not found controller delegate", e);
         }
-
-        noDelegate.add(name);
-        return new EmptyActivityDelegate(activity);
 
     }
 
     @NonNull
     public static ControllerFragmentDelegate create(Fragment fragment) {
         String name = fragment.getClass().getCanonicalName();
-        if (noDelegate.contains(name)) {
-            return new EmptyFragmentDelegate(fragment);
-        }
         try {
             Constructor constructor = findConstructor(fragment.getClass());
             if (constructor != null) {
                 return (ControllerFragmentDelegate) constructor.newInstance(fragment);
+            }else{
+                cache.put(name, EMPTY_FRAGMENT);
+                return EMPTY_FRAGMENT.newInstance(fragment);
             }
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            if (isDebug) {
-                new IllegalStateException(fragment + " not found controller delegate", e).printStackTrace();
-            }
+            throw new IllegalStateException(fragment + " not found controller delegate", e);
         }
-
-        noDelegate.add(name);
-        return new EmptyFragmentDelegate(fragment);
     }
 
     @NonNull
     public static SimpleControllerDelegate create(Object target) {
         String name = target.getClass().getCanonicalName();
-        if (noDelegate.contains(name)) {
-            return new EmptySimpleControllerDelegate(target);
-        }
         try {
             Constructor constructor = findConstructor(target.getClass());
             if (constructor != null) {
-                return (EmptySimpleControllerDelegate) constructor.newInstance(target);
+                return (SimpleControllerDelegate) constructor.newInstance(target);
+            }else{
+                cache.put(name, EMPTY_OTHER);
+                return EMPTY_OTHER.newInstance(target);
             }
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            if (isDebug) {
-                new IllegalStateException(target + " not found controller delegate", e).printStackTrace();
-            }
+            throw new IllegalStateException(target + " not found controller delegate", e);
         }
 
-        noDelegate.add(name);
-        return new EmptySimpleControllerDelegate(target);
     }
 
 
     private static class EmptyActivityDelegate extends ControllerActivityDelegate {
 
-        private EmptyActivityDelegate(AppCompatActivity activity) {
+        public EmptyActivityDelegate(AppCompatActivity activity) {
             super(activity);
         }
-
 
     }
 
 
     private static class EmptyFragmentDelegate extends ControllerFragmentDelegate {
 
-        private EmptyFragmentDelegate(Fragment fragment) {
+        public EmptyFragmentDelegate(Fragment fragment) {
             super(fragment);
         }
     }
 
     private static class EmptySimpleControllerDelegate extends SimpleControllerDelegate {
 
-        private EmptySimpleControllerDelegate(Object object) {
+        public EmptySimpleControllerDelegate(Object object) {
             super(object);
         }
     }

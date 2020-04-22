@@ -27,6 +27,7 @@ import cn.luyinbros.compiler.TypeHelper;
 import cn.luyinbros.compiler.TypeNameHelper;
 
 import static javax.lang.model.element.Modifier.PRIVATE;
+import static javax.lang.model.element.Modifier.PROTECTED;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
 //TODO View参数自动类型推断
@@ -80,7 +81,7 @@ public class BindViewProvider {
 
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("buildView")
                 .addAnnotation(Override.class)
-                .addModifiers(PUBLIC)
+                .addModifiers(PROTECTED)
                 .addParameter(Constants.INTERFACE_BUILD_CONTEXT, "buildContext")
                 .returns(Constants.CLASS_VIEW);
         ResId layoutId = controllerDelegateInfo.getLayoutId();

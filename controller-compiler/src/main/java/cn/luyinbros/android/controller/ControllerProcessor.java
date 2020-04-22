@@ -39,7 +39,6 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
 import cn.luyinbros.android.controller.annotation.BindView;
-import cn.luyinbros.android.controller.annotation.BindViews;
 import cn.luyinbros.android.controller.annotation.BuildView;
 import cn.luyinbros.android.controller.annotation.BundleValue;
 import cn.luyinbros.android.controller.annotation.Controller;
@@ -130,7 +129,6 @@ public class ControllerProcessor extends AbstractProcessor {
         annotationCls.add(OnActivityResult.class);
         annotationCls.add(OnPermissionResult.class);
         annotationCls.add(BindView.class);
-        annotationCls.add(BindViews.class);
         annotationCls.add(BundleValue.class);
         Set<String> result = new HashSet<>();
         for (Class<? extends Annotation> cls : annotationCls) {
@@ -158,16 +156,6 @@ public class ControllerProcessor extends AbstractProcessor {
             if (!SuperficialValidation.validateElement(element)) continue;
             try {
                 parseBindView(element, builderMap, erasedTargetNames);
-            } catch (Exception e) {
-                error(element, e);
-            }
-        }
-
-        for (Element element : env.getElementsAnnotatedWith(BindViews.class)) {
-            if (!SuperficialValidation.validateElement(element)) continue;
-            try {
-                Map<Integer, ResId> map = elementToIds(element, getMirror(element, BindViews.class), element.getAnnotation(BindViews.class).value());
-                CompileMessager.warn(map.toString());
             } catch (Exception e) {
                 error(element, e);
             }

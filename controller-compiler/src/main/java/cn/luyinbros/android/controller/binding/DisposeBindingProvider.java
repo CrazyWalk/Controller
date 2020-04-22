@@ -8,6 +8,7 @@ import com.squareup.javapoet.TypeSpec;
 import java.util.ArrayList;
 import java.util.List;
 
+import static javax.lang.model.element.Modifier.PROTECTED;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
 public class DisposeBindingProvider {
@@ -27,7 +28,7 @@ public class DisposeBindingProvider {
     public void code(TypeSpec.Builder result,CodeBlock... disposes) {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("dispose")
                 .addAnnotation(Override.class)
-                .addModifiers(PUBLIC)
+                .addModifiers(PROTECTED)
                 .returns(ClassName.VOID);
         methodBuilder.addStatement("super.dispose()");
 

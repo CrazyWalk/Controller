@@ -23,7 +23,11 @@ public abstract class ControllerActivityDelegate {
         this.sourceActivity = activity;
     }
 
-
+    /**
+     * 初始化及视图创建
+     *
+     * @see Activity#onCreate(Bundle)
+     */
     public final void onCreate(@Nullable Bundle savedInstanceState) {
         this.mActivity = sourceActivity;
         final BuildContext buildContext = new BuildContextImpl(mActivity,
@@ -33,7 +37,7 @@ public abstract class ControllerActivityDelegate {
         initState(buildContext);
         if (!mActivity.isFinishing()) {
             mView = buildView(buildContext);
-            if (mView!=null){
+            if (mView != null) {
                 //buildView->initView()
                 mActivity.setContentView(mView);
                 sourceActivity.getLifecycle().addObserver(new LifecycleEventObserver() {
@@ -50,21 +54,43 @@ public abstract class ControllerActivityDelegate {
 
     }
 
-    private void destroy() {
-        if (sourceActivity != null) {
-            sourceActivity = null;
-            mActivity = null;
-            mView = null;
-            dispose();
-        }
-    }
-
+    /**
+     * 接收onRequestPermissionsResult 回调
+     *
+     * @see Activity#onRequestPermissionsResult(int, String[], int[])
+     */
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         //empty
     }
 
+
+    /**
+     * onActivityResult 回调
+     *
+     * @see Activity#onActivityResult(int, int, Intent)
+     */
+
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         //empty
+    }
+
+    /**
+     * 解除activity与delegate的关系
+     *
+     * @see Activity#onDestroy()
+     */
+    public void unbind() {
+        if (sourceActivity != null) {
+            sourceActivity = null;
+            mActivity = null;
+        }
+    }
+
+    private void destroy() {
+        if (mView != null) {
+            mView = null;
+            dispose();
+        }
     }
 
 

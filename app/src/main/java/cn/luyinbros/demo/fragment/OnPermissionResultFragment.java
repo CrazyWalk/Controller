@@ -1,8 +1,6 @@
-package cn.luyinbros.demo.activity;
+package cn.luyinbros.demo.fragment;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.Intent;
 
 import androidx.core.app.ActivityCompat;
 
@@ -14,14 +12,15 @@ import cn.luyinbros.android.controller.annotation.OnPermissionResult;
 import cn.luyinbros.android.controller.annotation.OnTextChanged;
 import cn.luyinbros.demo.R;
 import cn.luyinbros.demo.base.BaseActivity;
+import cn.luyinbros.demo.base.BaseFragment;
 import cn.luyinbros.demo.controller.OnSingleClick;
 import cn.luyinbros.logger.Logger;
 import cn.luyinbros.logger.LoggerFactory;
 
 @Controller(R.layout.activity_rx_permisison)
-public class OnPermissionResultActivity extends BaseActivity {
+public class OnPermissionResultFragment extends BaseFragment {
 
-    private Logger logger = LoggerFactory.getLogger(OnPermissionResultActivity.class);
+    private Logger logger = LoggerFactory.getLogger(OnPermissionResultFragment.class);
     private int requestCode = 1;
     private String[][] permissions = new String[][]{
             new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
@@ -38,11 +37,9 @@ public class OnPermissionResultActivity extends BaseActivity {
     void onRequestClick() {
         if (requestCode >= 1) {
             if (requestCode <= 7) {
-                ActivityCompat.requestPermissions(this,
-                        permissions[requestCode], requestCode);
+               requestPermissions(permissions[requestCode], requestCode);
             } else {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, requestCode);
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, requestCode);
             }
         }
     }

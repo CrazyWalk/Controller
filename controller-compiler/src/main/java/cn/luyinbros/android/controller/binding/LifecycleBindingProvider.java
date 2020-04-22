@@ -16,6 +16,7 @@ import javax.lang.model.element.Modifier;
 
 import cn.luyinbros.android.controller.Constants;
 
+import static javax.lang.model.element.Modifier.PROTECTED;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
 public class LifecycleBindingProvider {
@@ -143,7 +144,7 @@ public class LifecycleBindingProvider {
         addFields(result);
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("didChangeAppLifecycleState")
                 .addAnnotation(Override.class)
-                .addModifiers(PUBLIC)
+                .addModifiers(PROTECTED)
                 .addParameter(Constants.ENUM_LIFECYCLE_EVENT, "state")
                 .returns(ClassName.VOID);
         methodBuilder.addStatement("super.didChangeAppLifecycleState(state)");

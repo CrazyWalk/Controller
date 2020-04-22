@@ -10,6 +10,7 @@ import java.util.List;
 import cn.luyinbros.android.controller.Constants;
 import cn.luyinbros.android.controller.ControllerDelegateInfo;
 
+import static javax.lang.model.element.Modifier.PROTECTED;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
 public class InitStateBindingProvider {
@@ -33,7 +34,7 @@ public class InitStateBindingProvider {
 
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("initState")
                 .addAnnotation(Override.class)
-                .addModifiers(PUBLIC)
+                .addModifiers(PROTECTED)
                 .addParameter(Constants.INTERFACE_BUILD_CONTEXT, "buildContext")
                 .returns(ClassName.VOID);
         methodBuilder.addStatement("super.initState(buildContext)");

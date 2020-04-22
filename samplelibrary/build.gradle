@@ -25,6 +25,13 @@ android {
 }
 
 dependencies {
-    implementation project(':base')
+    implementation deps.androidx.compat
+    implementation deps.androidx.recyclerview
+    implementation deps.androidx.constraintlayout
+    implementation 'com.github.CrazyWalk:Logger:1.0.0-beta1'
+    implementation project(':controller-api')
+    implementation project(':controller-annotation')
     annotationProcessor project(':controller-compiler')
+
+   // annotationProcessor project(':controller-compiler')
 }

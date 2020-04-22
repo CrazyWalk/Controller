@@ -9,16 +9,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import cn.luyinbros.android.controller.annotation.BundleValue;
+import cn.luyinbros.android.controller.annotation.Controller;
 import cn.luyinbros.android.controller.annotation.InitState;
 import cn.luyinbros.android.controller.annotation.Option;
+import cn.luyinbros.demo.R;
 import cn.luyinbros.demo.base.BaseFragment;
 import cn.luyinbros.demo.data.ParcelableObject;
 import cn.luyinbros.demo.data.SerializableObject;
+import cn.luyinbros.logger.Logger;
+import cn.luyinbros.logger.LoggerFactory;
 
 
-//@Controller(R.layout.layout_bundle)
+@Controller(R.layout.layout_bundle)
 public class BundleValueFragment extends BaseFragment {
-   // private Logger logger = LoggerFactory.getLogger(BundleValueFragment.class);
+    private Logger logger = LoggerFactory.getLogger(BundleValueFragment.class);
 
     @BundleValue("charKey")
     char charValue;
@@ -84,7 +88,7 @@ public class BundleValueFragment extends BaseFragment {
 
     @InitState
     void initState() {
-      //  logger.debug(toString());
+        logger.debug(toString());
     }
 
 

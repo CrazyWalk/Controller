@@ -10,7 +10,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 
 import cn.luyinbros.android.controller.annotation.BindView;
-import cn.luyinbros.android.controller.annotation.BindViews;
 import cn.luyinbros.android.controller.annotation.BuildView;
 import cn.luyinbros.android.controller.annotation.BundleValue;
 import cn.luyinbros.android.controller.annotation.DidChangeLifecycleEvent;
@@ -35,20 +34,6 @@ public class Checker {
             return true;
         }
         if (isNotFieldElement(element, BindView.class)) {
-            return true;
-        }
-        return false;
-
-    }
-
-    public static boolean isInvalidateBindsView(Element element) {
-        if (isInvalidateController(element.getEnclosingElement())) {
-            return true;
-        }
-        if (isInaccessibleElement(element, BindViews.class, "method")) {
-            return true;
-        }
-        if (isNotFieldElement(element, BindViews.class)) {
             return true;
         }
         return false;

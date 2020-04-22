@@ -17,6 +17,7 @@ import androidx.annotation.IntegerRes;
 import androidx.annotation.StringRes;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
@@ -64,6 +65,11 @@ public final class Controllers {
     public static int getPermissionResult(@NonNull Activity activity, @NonNull String[] permissions, @NonNull int[] grantResults) {
         return getPlugin().getPermissionResult(activity, permissions, grantResults);
     }
+
+    public static int getPermissionResult(@NonNull Fragment fragment, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        return getPlugin().getPermissionResult(fragment.requireActivity(), permissions, grantResults);
+    }
+
 
     public static <T extends View> T findViewById(@NonNull View parent, @IdRes int id) {
         return getPlugin().findViewById(parent, id);
