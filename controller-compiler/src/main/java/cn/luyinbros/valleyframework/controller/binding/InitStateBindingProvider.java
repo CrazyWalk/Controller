@@ -1,6 +1,7 @@
 package cn.luyinbros.valleyframework.controller.binding;
 
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 
@@ -25,12 +26,11 @@ public class InitStateBindingProvider {
     }
 
 
-    public void code(TypeSpec.Builder result, ControllerDelegateInfo info) {
-        if (initStateBindings.isEmpty() && bundleValueBindingProvider.isEmpty()) {
-            return;
-        }
+    public boolean isEmpty() {
+        return initStateBindings.isEmpty() && bundleValueBindingProvider.isEmpty();
+    }
 
-
+    public void code(TypeSpec.Builder result, ControllerDelegateInfo info, CodeBlock... otherBlock) {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("initState")
                 .addAnnotation(Override.class)
                 .addModifiers(PROTECTED)
@@ -38,6 +38,9 @@ public class InitStateBindingProvider {
                 .returns(ClassName.VOID);
         methodBuilder.addStatement("super.initState(buildContext)");
 
+        for (CodeBlock codeBlock : otherBlock) {
+            methodBuilder.addCode(codeBlock);
+        }
         methodBuilder.addCode(bundleValueBindingProvider.code(info));
 
         for (InitStateBinding initStateBinding : initStateBindings) {

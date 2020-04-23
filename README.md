@@ -23,8 +23,6 @@
 
 ## 即将修复的问题
 * 自定义listenerClass无法获取默认值。。
-* DidLifecycleEvent 在onDestroy 的时候应该吧次数全部清0
-
 
 ## 安装
 根目录的build.gradle

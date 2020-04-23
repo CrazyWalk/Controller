@@ -24,9 +24,9 @@ public class Constants {
     public static final String TYPE_ARRAY_LIST="java.util.ArrayList";
 
 
-    public static final ClassName CLASS_DELEGATE_ACTIVITY = ClassName.get(PACKAGE_CONTROLLER_LIBRARY, "ControllerActivityDelegate");
-    public static final ClassName CLASS_DELEGATE_FRAGMENT = ClassName.get(PACKAGE_CONTROLLER_LIBRARY, "ControllerFragmentDelegate");
-    public static final ClassName CLASS_DELEGATE_COMMON = ClassName.get(PACKAGE_CONTROLLER_LIBRARY, "SimpleControllerDelegate");
+    public static final ClassName CLASS_DELEGATE_ACTIVITY = ClassName.get(PACKAGE_CONTROLLER_LIBRARY, "AbstractControllerActivityDelegate");
+    public static final ClassName CLASS_DELEGATE_FRAGMENT = ClassName.get(PACKAGE_CONTROLLER_LIBRARY, "AbstractControllerFragmentDelegate");
+    public static final ClassName CLASS_DELEGATE_COMMON = ClassName.get(PACKAGE_CONTROLLER_LIBRARY, "AbstractSimpleControllerDelegate");
     public static final ClassName INTERFACE_BUILD_CONTEXT = ClassName.get(PACKAGE_CONTROLLER_LIBRARY, "BuildContext");
     public static final ClassName CLASS_CONTROLLER_HELPER = ClassName.get(PACKAGE_CONTROLLER_LIBRARY, "Controllers");
     public static final ClassName ENUM_LIFECYCLE_EVENT = ClassName.get(Lifecycle.Event.class);

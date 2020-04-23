@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import cn.luyinbros.valleyframework.controller.AbstractControllerActivityDelegate;
 import cn.luyinbros.valleyframework.controller.ControllerActivityDelegate;
 import cn.luyinbros.valleyframework.controller.ControllerDelegate;
 import cn.luyinbros.logger.LoggerFactory;

@@ -124,13 +124,20 @@ public class ControllerDelegateSet {
                 .addStatement("super(target)")
                 .addStatement("this.target=target").build());
 
-        initStateBindingProvider.code(result, controllerDelegateInfo);
 
+        if (!initStateBindingProvider.isEmpty() || lifecycleBindingProvider.hasField()) {
+            initStateBindingProvider.code(result, controllerDelegateInfo, lifecycleBindingProvider.initFields());
+        }
 
-        bindViewProvider.code(enclosingElement,result, mParent != null && mParent.isBuildNewView());
+        bindViewProvider.code(enclosingElement, result, mParent != null && mParent.isBuildNewView());
         lifecycleBindingProvider.code(result);
-        disposeBindingProvider.code(result,
-                bindViewProvider.dispose());
+
+        if (!disposeBindingProvider.isEmpty() || bindViewProvider.isNeedDispose()){
+            disposeBindingProvider.code(result,
+                    bindViewProvider.dispose());
+        }
+
+
         activityResultBindingProvider.code(result);
         permissionResultBindingProvider.code(result);
         return result.build();

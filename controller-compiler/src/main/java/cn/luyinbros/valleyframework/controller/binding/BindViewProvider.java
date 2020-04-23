@@ -30,7 +30,7 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PROTECTED;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
-//TODO View参数自动类型推断
+
 public class BindViewProvider {
     private ControllerDelegateInfo controllerDelegateInfo;
     private BuildViewBinding bindViewBinding;
@@ -45,6 +45,7 @@ public class BindViewProvider {
     public void setListenerBindingProvider(ListenerBindingProvider listenerBindingProvider) {
         this.listenerBindingProvider = listenerBindingProvider;
     }
+
 
     public boolean isBuildNewView() {
         return bindViewBinding != null || controllerDelegateInfo.getLayoutId() != null;
@@ -144,6 +145,11 @@ public class BindViewProvider {
                 }
             }
         }
+    }
+
+    public boolean isNeedDispose() {
+        return (listenerBindingProvider != null && listenerBindingProvider.getListenerBindings().size() > 0) ||
+                viewFieldBindings.size() > 0;
     }
 
     public CodeBlock dispose() {

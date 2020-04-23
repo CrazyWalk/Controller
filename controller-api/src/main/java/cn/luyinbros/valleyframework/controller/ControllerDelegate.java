@@ -1,5 +1,12 @@
 package cn.luyinbros.valleyframework.controller;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -82,31 +89,6 @@ public class ControllerDelegate {
 
     }
 
-
-    private static class EmptyActivityDelegate extends ControllerActivityDelegate {
-
-        public EmptyActivityDelegate(AppCompatActivity activity) {
-            super(activity);
-        }
-
-    }
-
-
-    private static class EmptyFragmentDelegate extends ControllerFragmentDelegate {
-
-        public EmptyFragmentDelegate(Fragment fragment) {
-            super(fragment);
-        }
-    }
-
-    private static class EmptySimpleControllerDelegate extends SimpleControllerDelegate {
-
-        public EmptySimpleControllerDelegate(Object object) {
-            super(object);
-        }
-    }
-
-
     @Nullable
     private static Constructor findConstructor(Class targetClass) {
         String name = targetClass.getCanonicalName();
@@ -132,6 +114,91 @@ public class ControllerDelegate {
         }
         return constructor;
     }
+
+
+    private static class EmptyActivityDelegate implements ControllerActivityDelegate {
+
+        public EmptyActivityDelegate(AppCompatActivity activity) {
+
+        }
+
+        @Override
+        public void onCreate(@org.checkerframework.checker.nullness.qual.Nullable Bundle savedInstanceState) {
+
+        }
+
+        @Override
+        public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+
+        }
+
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, @org.checkerframework.checker.nullness.qual.Nullable Intent data) {
+
+        }
+
+        @Override
+        public void unbind() {
+
+        }
+    }
+
+
+    private static class EmptyFragmentDelegate implements ControllerFragmentDelegate {
+
+        public EmptyFragmentDelegate(Fragment fragment) {
+
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            return null;
+        }
+
+        @Override
+        public void onViewCreated(View view, Bundle savedInstanceState) {
+
+        }
+
+        @Override
+        public void onRequestPermissionsResult(int requestCode,String[] permissions,  int[] grantResults) {
+
+        }
+
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        }
+
+        @Override
+        public void unbind() {
+
+        }
+    }
+
+    private static class EmptySimpleControllerDelegate implements SimpleControllerDelegate {
+
+        public EmptySimpleControllerDelegate(Object object) {
+
+        }
+        @Override
+        public void onCreate(Context context, Bundle savedInstanceState, ViewGroup parent) {
+
+        }
+
+        @Override
+        public void unbind() {
+
+        }
+
+        @Override
+        public View getView() {
+            return null;
+        }
+    }
+
+
+
 
 
 }

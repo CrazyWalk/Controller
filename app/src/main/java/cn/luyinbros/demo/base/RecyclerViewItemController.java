@@ -6,9 +6,10 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import cn.luyinbros.valleyframework.controller.AbstractSimpleControllerDelegate;
 import cn.luyinbros.valleyframework.controller.ControllerDelegate;
-import cn.luyinbros.valleyframework.controller.SimpleControllerDelegate;
 import cn.luyinbros.logger.LoggerFactory;
+import cn.luyinbros.valleyframework.controller.SimpleControllerDelegate;
 
 public abstract class RecyclerViewItemController {
     private final SimpleControllerDelegate mDelegate = ControllerDelegate.create(this);

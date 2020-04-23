@@ -19,14 +19,14 @@ import cn.luyinbros.valleyframework.controller.Constants;
 import static javax.lang.model.element.Modifier.PROTECTED;
 
 public class LifecycleBindingProvider {
-    private List<LifecycleBinding> allBindings=new ArrayList<>();
-    private List<LifecycleBinding> onCreateBindings=new ArrayList<>();
-    private List<LifecycleBinding> onStartBindings=new ArrayList<>();
-    private List<LifecycleBinding> onResumeBindings=new ArrayList<>();
-    private List<LifecycleBinding> onPauseBindings=new ArrayList<>();
-    private List<LifecycleBinding> onStopBindings=new ArrayList<>();
-    private List<LifecycleBinding> onDestroyBindings=new ArrayList<>();
-    private List<LifecycleBinding> onAnyBindings=new ArrayList<>();
+    private List<LifecycleBinding> allBindings = new ArrayList<>();
+    private List<LifecycleBinding> onCreateBindings = new ArrayList<>();
+    private List<LifecycleBinding> onStartBindings = new ArrayList<>();
+    private List<LifecycleBinding> onResumeBindings = new ArrayList<>();
+    private List<LifecycleBinding> onPauseBindings = new ArrayList<>();
+    private List<LifecycleBinding> onStopBindings = new ArrayList<>();
+    private List<LifecycleBinding> onDestroyBindings = new ArrayList<>();
+    private List<LifecycleBinding> onAnyBindings = new ArrayList<>();
 
 
     public void addBinding(LifecycleBinding binding) {
@@ -54,7 +54,7 @@ public class LifecycleBindingProvider {
     }
 
     public void code(TypeSpec.Builder result) {
-        if (isEmpty()){
+        if (isEmpty()) {
             return;
         }
         CodeBlock.Builder builder = CodeBlock.builder();
@@ -70,9 +70,9 @@ public class LifecycleBindingProvider {
         }
 
         if (!onStartBindings.isEmpty()) {
-            if (hasNext){
+            if (hasNext) {
                 builder.beginControlFlow("else if(state==$T.ON_START)", Constants.ENUM_LIFECYCLE_EVENT);
-            }else{
+            } else {
                 builder.beginControlFlow("if(state==$T.ON_START)", Constants.ENUM_LIFECYCLE_EVENT);
             }
             for (LifecycleBinding binding : onStartBindings) {
@@ -82,9 +82,9 @@ public class LifecycleBindingProvider {
             hasNext = true;
         }
         if (!onResumeBindings.isEmpty()) {
-            if (hasNext){
+            if (hasNext) {
                 builder.beginControlFlow("else if(state==$T.ON_RESUME)", Constants.ENUM_LIFECYCLE_EVENT);
-            }else{
+            } else {
                 builder.beginControlFlow("if(state==$T.ON_RESUME)", Constants.ENUM_LIFECYCLE_EVENT);
             }
             for (LifecycleBinding binding : onResumeBindings) {
@@ -94,9 +94,9 @@ public class LifecycleBindingProvider {
             hasNext = true;
         }
         if (!onPauseBindings.isEmpty()) {
-            if (hasNext){
+            if (hasNext) {
                 builder.beginControlFlow("else if(state==$T.ON_PAUSE)", Constants.ENUM_LIFECYCLE_EVENT);
-            }else{
+            } else {
                 builder.beginControlFlow("if(state==$T.ON_PAUSE)", Constants.ENUM_LIFECYCLE_EVENT);
             }
             for (LifecycleBinding binding : onPauseBindings) {
@@ -106,9 +106,9 @@ public class LifecycleBindingProvider {
             hasNext = true;
         }
         if (!onStopBindings.isEmpty()) {
-            if (hasNext){
+            if (hasNext) {
                 builder.beginControlFlow("else if(state==$T.ON_STOP)", Constants.ENUM_LIFECYCLE_EVENT);
-            }else{
+            } else {
                 builder.beginControlFlow("if(state==$T.ON_STOP)", Constants.ENUM_LIFECYCLE_EVENT);
             }
             for (LifecycleBinding binding : onStopBindings) {
@@ -118,9 +118,9 @@ public class LifecycleBindingProvider {
             hasNext = true;
         }
         if (!onDestroyBindings.isEmpty()) {
-            if (hasNext){
+            if (hasNext) {
                 builder.beginControlFlow("else if(state==$T.ON_DESTROY)", Constants.ENUM_LIFECYCLE_EVENT);
-            }else{
+            } else {
                 builder.beginControlFlow("if(state==$T.ON_DESTROY)", Constants.ENUM_LIFECYCLE_EVENT);
             }
             for (LifecycleBinding binding : onDestroyBindings) {
@@ -170,6 +170,18 @@ public class LifecycleBindingProvider {
 
     }
 
+    public CodeBlock initFields() {
+        CodeBlock.Builder builder = CodeBlock.builder();
+        if (allBindings != null) {
+            for (LifecycleBinding binding : allBindings) {
+                if (binding.getCount() >= 1) {
+                    builder.addStatement("$L=0", createFieldName(binding.getMethodName()));
+                }
+            }
+        }
+        return builder.build();
+    }
+
     public void addFields(TypeSpec.Builder builder) {
         if (allBindings != null) {
             for (LifecycleBinding binding : allBindings) {
@@ -183,6 +195,18 @@ public class LifecycleBindingProvider {
         }
 
     }
+
+    public boolean hasField() {
+        if (allBindings != null) {
+            for (LifecycleBinding binding : allBindings) {
+                if (binding.getCount() >= 1) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
     private String createFieldName(String methodName) {
         return "lifecycle_" + methodName + "_count";

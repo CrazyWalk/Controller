@@ -10,10 +10,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import cn.luyinbros.valleyframework.controller.AbstractControllerFragmentDelegate;
 import cn.luyinbros.valleyframework.controller.ControllerDelegate;
-import cn.luyinbros.valleyframework.controller.ControllerFragmentDelegate;
 import cn.luyinbros.logger.Logger;
 import cn.luyinbros.logger.LoggerFactory;
+import cn.luyinbros.valleyframework.controller.ControllerFragmentDelegate;
 
 public class BaseFragment extends Fragment {
     private ControllerFragmentDelegate mDelegate = ControllerDelegate.create(this);
