@@ -3,7 +3,7 @@
 在存在视图的时候稳定配置。
 
 ## 依赖
-当前版本 1.0.0
+当前版本 1.0
 
 ## 支持的功能
 * findViewById
@@ -20,6 +20,23 @@
 
 ## 考虑支持的功能
 * 获取android资源文件，包括字符串，数组等
+
+## 安装
+根目录的build.gradle
+```
+allprojects {
+    repositories {
+        ......        
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+```
+依赖
+```
+implementation 'com.github.CrazyWalk.Logger:logger:{latestVersion}'
+annotationProcessor 'com.github.CrazyWalk.Logger:logger:{latestVersion}'
+```
 
 ## 使用
 代理类的关系
