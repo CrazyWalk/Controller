@@ -34,8 +34,8 @@ allprojects {
 ```
 依赖
 ```
-implementation 'com.github.CrazyWalk.Logger:logger:{latestVersion}'
-annotationProcessor 'com.github.CrazyWalk.Logger:logger:{latestVersion}'
+implementation 'com.github.CrazyWalk:Controller:{latestVersion}'
+annotationProcessor 'com.github.CrazyWalk:Controller:{latestVersion}'
 ```
 
 ## 使用
