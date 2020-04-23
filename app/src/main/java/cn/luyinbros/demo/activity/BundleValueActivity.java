@@ -2,6 +2,7 @@ package cn.luyinbros.demo.activity;
 
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.view.View;
 
 
 import androidx.annotation.NonNull;
@@ -9,6 +10,7 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import cn.luyinbros.valleyframework.controller.annotation.BuildView;
 import cn.luyinbros.valleyframework.controller.annotation.BundleValue;
 import cn.luyinbros.valleyframework.controller.annotation.Controller;
 import cn.luyinbros.valleyframework.controller.annotation.InitState;
@@ -88,6 +90,10 @@ public class BundleValueActivity extends BaseActivity {
         logger.debug(toString());
     }
 
+    @BuildView
+    View buildView() {
+        return null;
+    }
 
 
     @NonNull

@@ -29,6 +29,10 @@ public class BundleValueBindingProvider {
 
     public CodeBlock code(ControllerDelegateInfo info) {
         CodeBlock.Builder builder = CodeBlock.builder();
+        if (isEmpty()) {
+            return builder.build();
+        }
+
         ControllerDelegateInfo.Type clientType = info.getType();
         if (clientType == ControllerDelegateInfo.Type.ACTIVITY) {
             builder.addStatement("final $L data=target.getIntent()", Constants.CLASS_INTENT);

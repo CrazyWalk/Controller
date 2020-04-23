@@ -130,14 +130,9 @@ public class LifecycleBindingProvider {
             hasNext = true;
         }
         if (!onAnyBindings.isEmpty()) {
-            if (hasNext){
-                builder.beginControlFlow("else", Constants.ENUM_LIFECYCLE_EVENT);
-            }
             for (LifecycleBinding binding : onAnyBindings) {
                 addStatement(builder, binding);
             }
-            builder.endControlFlow();
-            hasNext = true;
         }
 
         addFields(result);

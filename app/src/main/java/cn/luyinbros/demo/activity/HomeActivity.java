@@ -3,6 +3,8 @@ package cn.luyinbros.demo.activity;
 
 import android.content.Intent;
 
+import androidx.lifecycle.Lifecycle;
+
 import cn.luyinbros.valleyframework.controller.annotation.Controller;
 import cn.luyinbros.demo.R;
 import cn.luyinbros.demo.base.BaseActivity;
@@ -11,6 +13,7 @@ import cn.luyinbros.demo.mock.Mock;
 import cn.luyinbros.demo.tree.RootActivity;
 import cn.luyinbros.logger.Logger;
 import cn.luyinbros.logger.LoggerFactory;
+import cn.luyinbros.valleyframework.controller.annotation.DidChangeLifecycleEvent;
 
 @Controller(R.layout.activity_home)
 public class HomeActivity extends BaseActivity {
@@ -62,4 +65,9 @@ public class HomeActivity extends BaseActivity {
         startActivity(new Intent(this, RootActivity.class));
     }
 
+
+    @DidChangeLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    void onViewCreate() {
+        logger.debug("onViewCreate");
+    }
 }

@@ -11,7 +11,9 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+
 import cn.luyinbros.valleyframework.controller.annotation.Controller;
+import cn.luyinbros.valleyframework.controller.annotation.InitState;
 import cn.luyinbros.valleyframework.controller.annotation.OnCheckedChanged;
 import cn.luyinbros.valleyframework.controller.annotation.OnClick;
 import cn.luyinbros.valleyframework.controller.annotation.OnEditorAction;
@@ -30,6 +32,10 @@ import cn.luyinbros.logger.LoggerFactory;
 public class BindViewActivity extends BaseActivity {
     private Logger logger = LoggerFactory.getLogger(BindViewActivity.class);
 
+    @InitState
+    void initState(){
+
+    }
     @OnClick({R.id.clickButton})
     void onClickButtonClick(Button button) {
         logger.debug("onClickButtonClick " + button.toString());

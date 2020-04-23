@@ -20,36 +20,40 @@ public class LifecycleEventActivity extends BaseActivity {
         logger.debug("onViewCreate");
     }
 
-    @DidChangeLifecycleEvent(Lifecycle.Event.ON_START)
-    void onViewStart() {
-        logger.debug("onViewStart");
-    }
+//    @DidChangeLifecycleEvent(Lifecycle.Event.ON_START)
+//    void onViewStart() {
+//        logger.debug("onViewStart");
+//    }
+//
+//    @DidChangeLifecycleEvent(Lifecycle.Event.ON_RESUME)
+//    void onViewResume() {
+//        logger.debug("onViewResume");
+//    }
+//
+//    @DidChangeLifecycleEvent(value = Lifecycle.Event.ON_RESUME, count = 1)
+//    void onViewResumeByOnce() {
+//        logger.debug("onViewResumeByOnce");
+//    }
+//
+//    @DidChangeLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+//    void onViewPause() {
+//        logger.debug("onViewPause");
+//    }
+//
+//    @DidChangeLifecycleEvent(Lifecycle.Event.ON_STOP)
+//    void onViewStop() {
+//        logger.debug("onViewStop");
+//    }
+//
+//    @DidChangeLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+//    void onViewDestroy() {
+//        logger.debug("onViewDestroy");
+//    }
 
-    @DidChangeLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    void onViewResume() {
-        logger.debug("onViewResume");
-    }
+    @DidChangeLifecycleEvent(value = Lifecycle.Event.ON_ANY)
+    void onAny(Lifecycle.Event event){
 
-    @DidChangeLifecycleEvent(value = Lifecycle.Event.ON_RESUME, count = 1)
-    void onViewResumeByOnce() {
-        logger.debug("onViewResumeByOnce");
     }
-
-    @DidChangeLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    void onViewPause() {
-        logger.debug("onViewPause");
-    }
-
-    @DidChangeLifecycleEvent(Lifecycle.Event.ON_STOP)
-    void onViewStop() {
-        logger.debug("onViewStop");
-    }
-
-    @DidChangeLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    void onViewDestroy() {
-        logger.debug("onViewDestroy");
-    }
-
     @Dispose
     void onDispose() {
         logger.debug("onDispose");

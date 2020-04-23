@@ -55,7 +55,7 @@ public class BuildViewBinding {
         final TypeMirror returnType = executableElement.getReturnType();
 
         if (!(returnType.getKind() == TypeKind.VOID || returnType.getKind() == TypeKind.DECLARED)) {
-            CompileMessager.error(element,"invalidate");
+            CompileMessager.error(element, "invalidate");
             return null;
         }
 
@@ -71,26 +71,26 @@ public class BuildViewBinding {
 
                 boolean foundBuildContext = false;
                 boolean foundView = false;
-                hasError=false;
+                hasError = false;
                 for (VariableElement variableElement : methodParameters) {
                     TypeMirror mirror = variableElement.asType();
                     if (TypeHelper.isTypeEqual(mirror, Constants.TYPE_BUILD_CONTEXT)) {
                         if (foundBuildContext) {
-                           hasError=true;
-                           break;
+                            hasError = true;
+                            break;
                         }
-                        argumentClassNames.add(new FullTypeName(TypeNameHelper.get(mirror),mirror));
+                        argumentClassNames.add(new FullTypeName(TypeNameHelper.get(mirror), mirror));
                         foundBuildContext = true;
 
                     } else if (TypeHelper.isSubtypeOfType(mirror, Constants.TYPE_VIEW)) {
                         if (foundView) {
-                            hasError=true;
+                            hasError = true;
                             break;
                         }
-                        argumentClassNames.add(new FullTypeName(TypeNameHelper.get(mirror),mirror));
+                        argumentClassNames.add(new FullTypeName(TypeNameHelper.get(mirror), mirror));
                         foundView = true;
                     } else {
-                        hasError=true;
+                        hasError = true;
                         break;
                     }
                 }
@@ -99,11 +99,14 @@ public class BuildViewBinding {
             if (TypeHelper.isSubtypeOfType(returnType, Constants.TYPE_VIEW)) {
                 returnClassName = TypeNameHelper.get(returnType);
                 final List<? extends VariableElement> methodParameters = executableElement.getParameters();
-                if (methodParameters.size() == 1) {
+                if (methodParameters.size() == 0) {
+                    argumentClassNames = new ArrayList<>();
+                    hasError = false;
+                } else if (methodParameters.size() == 1) {
                     VariableElement variableElement = methodParameters.get(0);
                     TypeMirror mirror = variableElement.asType();
                     if (TypeHelper.isTypeEqual(mirror, Constants.TYPE_BUILD_CONTEXT)) {
-                        argumentClassNames = ImmutableList.of(new FullTypeName(TypeNameHelper.get(mirror),mirror));
+                        argumentClassNames = ImmutableList.of(new FullTypeName(TypeNameHelper.get(mirror), mirror));
                         hasError = false;
                     }
                 }
@@ -111,7 +114,7 @@ public class BuildViewBinding {
         }
 
         if (hasError) {
-            CompileMessager.error(element,"invalidate");
+            CompileMessager.error(element, "invalidate");
             return null;
         }
 
