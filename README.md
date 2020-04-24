@@ -73,6 +73,14 @@ public abstract class BaseActivity extends AppCompatActivity {
         mDelegate.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
     
+    
+    @Override
+    public void setIntent(Intent newIntent) {
+        super.setIntent(newIntent);
+        //activity为singleTask singleTop时，用处非常大
+        mDelegate.setIntent(newIntent);
+    }
+   
     @Override
     protected void onDestroy() {
         super.onDestroy();
