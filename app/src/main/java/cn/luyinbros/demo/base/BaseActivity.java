@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import cn.luyinbros.valleyframework.controller.AbstractControllerActivityDelegate;
+
 import cn.luyinbros.valleyframework.controller.ControllerActivityDelegate;
 import cn.luyinbros.valleyframework.controller.ControllerDelegate;
 import cn.luyinbros.logger.LoggerFactory;
@@ -23,8 +23,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected final void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mDelegate.onCreate(savedInstanceState);
+
     }
 
     @Override
@@ -37,6 +37,12 @@ public abstract class BaseActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         mDelegate.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void setIntent(Intent newIntent) {
+        super.setIntent(newIntent);
+        mDelegate.setIntent(newIntent);
     }
 
     @Override

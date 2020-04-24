@@ -12,7 +12,7 @@ public abstract class AbstractSimpleControllerDelegate implements SimpleControll
     private Object target;
     private View mView;
 
-    public AbstractSimpleControllerDelegate(Object target) {
+    protected AbstractSimpleControllerDelegate(Object target) {
         this.target = target;
     }
 

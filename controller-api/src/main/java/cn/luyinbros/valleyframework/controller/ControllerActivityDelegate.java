@@ -30,12 +30,19 @@ public interface ControllerActivityDelegate {
     void onActivityResult(int requestCode, int resultCode, @Nullable Intent data);
 
     /**
+     * 更新activity intent,此行为会更新{@link cn.luyinbros.valleyframework.controller.annotation.BundleValue}上的数据
+     *
+     * @param data 新的intent
+     * @see android.app.Activity#setIntent(Intent)
+     */
+    void setIntent(Intent data);
+
+    /**
      * 解除activity与delegate的关系
      *
      * @see Activity#onDestroy()
      */
     void unbind();
-
 
 
 }

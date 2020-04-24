@@ -19,7 +19,7 @@ public abstract class AbstractControllerActivityDelegate implements ControllerAc
     private Activity mActivity;
     private View mView;
 
-    public AbstractControllerActivityDelegate(AppCompatActivity activity) {
+    protected AbstractControllerActivityDelegate(AppCompatActivity activity) {
         this.sourceActivity = activity;
     }
 
@@ -62,6 +62,12 @@ public abstract class AbstractControllerActivityDelegate implements ControllerAc
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         //empty
     }
+
+    @Override
+    public void setIntent(Intent data) {
+
+    }
+
 
 
     @Override

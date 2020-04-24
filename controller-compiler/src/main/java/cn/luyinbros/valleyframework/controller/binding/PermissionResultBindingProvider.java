@@ -53,6 +53,8 @@ public class PermissionResultBindingProvider {
                 .addParameter(ArrayTypeName.of(TypeName.INT), PARAM_NAME_GRANT_RESULTS)
                 .returns(ClassName.VOID);
 
+        methodBuilder.addStatement("super.onRequestPermissionsResult(requestCode,permissions,grantResults)");
+
         methodBuilder.addCode(CodeBlock.builder()
                 .beginControlFlow("if($L.length==$L)", PARAM_NAME_PERMISSION, 0)
                 .addStatement("return")
@@ -93,9 +95,9 @@ public class PermissionResultBindingProvider {
             }
             methodBuilder.addCode(rootCodeBlock.build());
         } else if (!permissionBindings.isEmpty()) {
-              methodBuilder.addCode(handleControlPermissions());
+            methodBuilder.addCode(handleControlPermissions());
         } else if (!otherBindings.isEmpty()) {
-             methodBuilder.addCode(generationOtherCodeBindingCode(true));
+            methodBuilder.addCode(generationOtherCodeBindingCode(true));
         }
         result.addMethod(methodBuilder.build());
 
@@ -222,6 +224,6 @@ public class PermissionResultBindingProvider {
     }
 
     private String createFieldName(String methodName) {
-        return "permission_" + methodName ;
+        return "permission_" + methodName;
     }
 }

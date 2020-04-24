@@ -57,6 +57,9 @@ public class ActivityResultBindingProvider {
                 .addParameter(Constants.CLASS_INTENT, PARAM_INTENT)
                 .returns(ClassName.VOID);
 
+        methodBuilder.addStatement("super.onActivityResult(requestCode,resultCode,data)");
+
+
         methodBuilder.addCode(generationOtherCodeBindingCode(false));
 
         if (!requestCodeBindings.isEmpty()) {

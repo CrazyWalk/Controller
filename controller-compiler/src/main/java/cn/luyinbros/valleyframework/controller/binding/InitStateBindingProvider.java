@@ -54,5 +54,7 @@ public class InitStateBindingProvider {
         }
 
         result.addMethod(methodBuilder.build());
+        bundleValueBindingProvider.setIntentMethod(info,result);
+
     }
 }

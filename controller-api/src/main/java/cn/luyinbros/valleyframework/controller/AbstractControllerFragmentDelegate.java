@@ -20,7 +20,7 @@ public abstract class AbstractControllerFragmentDelegate implements ControllerFr
     private BuildContext mBuildContext;
     private View mView;
 
-    public AbstractControllerFragmentDelegate(Fragment fragment) {
+    protected AbstractControllerFragmentDelegate(Fragment fragment) {
         this.sourceFragment = fragment;
     }
 

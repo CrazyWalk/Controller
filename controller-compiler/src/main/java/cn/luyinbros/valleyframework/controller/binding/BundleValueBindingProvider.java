@@ -1,7 +1,11 @@
 package cn.luyinbros.valleyframework.controller.binding;
 
+import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +20,8 @@ import cn.luyinbros.valleyframework.controller.Constants;
 import cn.luyinbros.valleyframework.controller.ControllerDelegateInfo;
 import cn.luyinbros.compiler.TypeHelper;
 
+import static javax.lang.model.element.Modifier.PUBLIC;
+
 public class BundleValueBindingProvider {
     private List<BundleValueBinding> bundleValueBindings = new ArrayList<>();
 
@@ -28,6 +34,30 @@ public class BundleValueBindingProvider {
     }
 
     public CodeBlock code(ControllerDelegateInfo info) {
+        return code(info, false);
+    }
+
+
+    public void setIntentMethod(ControllerDelegateInfo info, TypeSpec.Builder result) {
+        if (isEmpty()) {
+            return;
+        }
+        ControllerDelegateInfo.Type clientType = info.getType();
+        if (clientType == ControllerDelegateInfo.Type.ACTIVITY) {
+            MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("setIntent")
+                    .addAnnotation(Override.class)
+                    .addModifiers(PUBLIC)
+                    .addParameter(Constants.CLASS_INTENT, "data")
+                    .returns(ClassName.VOID);
+
+            methodBuilder.addStatement("super.setIntent(data)");
+            methodBuilder.addCode(code(info, true));
+            result.addMethod(methodBuilder.build());
+        }
+    }
+
+
+    public CodeBlock code(ControllerDelegateInfo info, boolean isNewIntent) {
         CodeBlock.Builder builder = CodeBlock.builder();
         if (isEmpty()) {
             return builder.build();
@@ -35,10 +65,13 @@ public class BundleValueBindingProvider {
 
         ControllerDelegateInfo.Type clientType = info.getType();
         if (clientType == ControllerDelegateInfo.Type.ACTIVITY) {
-            builder.addStatement("final $L data=target.getIntent()", Constants.CLASS_INTENT);
+            if (!isNewIntent) {
+                builder.addStatement("final $L data=target.getIntent()", Constants.CLASS_INTENT);
+            }
         } else {
             builder.addStatement("final $L data=target.getArguments()", Constants.CLASS_BUNDLE);
         }
+
         builder.beginControlFlow("if(data==null)");
         for (BundleValueBinding bundleValueBinding : bundleValueBindings) {
             TypeMirror mirror = bundleValueBinding.getTypeMirror();
@@ -98,7 +131,6 @@ public class BundleValueBindingProvider {
 //    }
         return builder.build();
     }
-
 
     private static Map<String, String> intentInvokeMethodNameMap = new HashMap<>();
     private static Map<String, String> bundleInvokeMethodNameMap = new HashMap<>();

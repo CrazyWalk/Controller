@@ -138,6 +138,11 @@ public class ControllerDelegate {
         }
 
         @Override
+        public void setIntent(Intent data) {
+
+        }
+
+        @Override
         public void unbind() {
 
         }
