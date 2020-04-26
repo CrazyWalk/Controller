@@ -29,6 +29,9 @@ public class ControllerDelegate {
             EMPTY_ACTIVITY = EmptyActivityDelegate.class.getConstructor(AppCompatActivity.class);
             EMPTY_FRAGMENT = EmptyFragmentDelegate.class.getConstructor(Fragment.class);
             EMPTY_OTHER = EmptySimpleControllerDelegate.class.getConstructor(Object.class);
+            EMPTY_ACTIVITY.setAccessible(true);
+            EMPTY_FRAGMENT.setAccessible(true);
+            EMPTY_OTHER.setAccessible(true);
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("初始化失败", e);
         }
@@ -63,7 +66,7 @@ public class ControllerDelegate {
             Constructor constructor = findConstructor(fragment.getClass());
             if (constructor != null) {
                 return (ControllerFragmentDelegate) constructor.newInstance(fragment);
-            }else{
+            } else {
                 cache.put(name, EMPTY_FRAGMENT);
                 return EMPTY_FRAGMENT.newInstance(fragment);
             }
@@ -79,7 +82,7 @@ public class ControllerDelegate {
             Constructor constructor = findConstructor(target.getClass());
             if (constructor != null) {
                 return (SimpleControllerDelegate) constructor.newInstance(target);
-            }else{
+            } else {
                 cache.put(name, EMPTY_OTHER);
                 return EMPTY_OTHER.newInstance(target);
             }
@@ -102,6 +105,7 @@ public class ControllerDelegate {
                 } else {
                     constructor = Class.forName(className).getConstructors()[0];
                 }
+                constructor.setAccessible(true);
                 cache.put(name, constructor);
             } catch (ClassNotFoundException e) {
                 Class cls = targetClass.getSuperclass();
@@ -166,7 +170,7 @@ public class ControllerDelegate {
         }
 
         @Override
-        public void onRequestPermissionsResult(int requestCode,String[] permissions,  int[] grantResults) {
+        public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 
         }
 
@@ -186,6 +190,7 @@ public class ControllerDelegate {
         public EmptySimpleControllerDelegate(Object object) {
 
         }
+
         @Override
         public void onCreate(Context context, Bundle savedInstanceState, ViewGroup parent) {
 
@@ -201,9 +206,6 @@ public class ControllerDelegate {
             return null;
         }
     }
-
-
-
 
 
 }
