@@ -41,6 +41,7 @@ dependencies {
     implementation deps.logger
     implementation project(':controller-api')
     implementation project(':controller-annotation')
+    //implementation "androidx.asynclayoutinflater:asynclayoutinflater:1.0.0"
     annotationProcessor project(':controller-compiler')
 
 

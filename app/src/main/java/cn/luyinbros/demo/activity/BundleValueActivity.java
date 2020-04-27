@@ -91,11 +91,6 @@ public class BundleValueActivity extends BaseActivity {
         logger.debug(toString());
     }
 
-    @BuildView
-    View buildView() {
-        return null;
-    }
-
 
     @NonNull
     @Override
