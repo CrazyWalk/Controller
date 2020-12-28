@@ -119,7 +119,8 @@ public class BindViewProvider {
                 generationBuildView(methodBuilder);
                 methodBuilder.addStatement("return view");
             } else {
-                methodBuilder.addStatement("return null");
+                methodBuilder.addStatement("return super.buildView($L)",
+                        "buildContext");
             }
 
         }
