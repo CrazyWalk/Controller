@@ -8,11 +8,14 @@ import com.sun.tools.javac.tree.TreeScanner;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.lang.annotation.Annotation;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
 import javax.annotation.processing.Messager;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
 
 public class RSProvider {
@@ -23,6 +26,53 @@ public class RSProvider {
                       Messager messager) {
         this.trees = trees;
         this.rScanner = new RScanner(messager);
+    }
+
+    private ResId elementToId(Element element, Class<? extends Annotation> annotation, int value) {
+        // CompileMessager.warn("elementToId " + getMirror(element, annotation).toString());
+        JCTree tree = (JCTree) trees.getTree(element, getMirror(element, annotation));
+        if (tree != null) { // tree can be null if the references are compiled types and not source
+            rScanner.reset();
+            tree.accept(rScanner);
+            if (!rScanner.resourceIds.isEmpty()) {
+                return rScanner.resourceIds.values().iterator().next();
+            }
+        }
+        if (value == -1) {
+            return null;
+        }
+        return new ResId(value);
+    }
+
+    public Map<Integer, ResId> elementToIds(Element element,
+                                            AnnotationMirror mirror,
+                                            int[] values) {
+        //  CompileMessager.warn("elementToIds " + mirror.toString());
+        Map<Integer, ResId> resourceIds = new LinkedHashMap<>();
+        JCTree tree = (JCTree) trees.getTree(element, mirror);
+        if (tree != null) { // tree can be null if the references are compiled types and not source
+            rScanner.reset();
+            tree.accept(rScanner);
+            resourceIds = rScanner.resourceIds;
+        }
+
+        // Every value looked up should have an Id
+        for (int value : values) {
+            resourceIds.putIfAbsent(value, new ResId(value));
+        }
+        return resourceIds;
+    }
+
+
+    @Nullable
+    private static AnnotationMirror getMirror(Element element,
+                                              Class<? extends Annotation> annotation) {
+        for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
+            if (annotationMirror.getAnnotationType().toString().equals(annotation.getCanonicalName())) {
+                return annotationMirror;
+            }
+        }
+        return null;
     }
 
 
