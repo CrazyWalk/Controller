@@ -21,6 +21,8 @@ import cn.luyinbros.valleyframework.controller.binding.InitStateBinding;
 import cn.luyinbros.valleyframework.controller.binding.InitStateBindingProvider;
 import cn.luyinbros.valleyframework.controller.binding.LifecycleBinding;
 import cn.luyinbros.valleyframework.controller.binding.LifecycleBindingProvider;
+import cn.luyinbros.valleyframework.controller.binding.LiveDataBinding;
+import cn.luyinbros.valleyframework.controller.binding.LiveDataBindingProvider;
 import cn.luyinbros.valleyframework.controller.binding.PermissionResultBinding;
 import cn.luyinbros.valleyframework.controller.binding.PermissionResultBindingProvider;
 import cn.luyinbros.valleyframework.controller.binding.ViewFieldBinding;
@@ -43,6 +45,7 @@ public class ControllerDelegateSet {
     private final DisposeBindingProvider disposeBindingProvider;
     private final ActivityResultBindingProvider activityResultBindingProvider;
     private final PermissionResultBindingProvider permissionResultBindingProvider;
+    private final LiveDataBindingProvider liveDataBindingProvider;
     private ControllerDelegateSet mParent;
 
     public ControllerDelegateSet(Builder builder) {
@@ -57,6 +60,7 @@ public class ControllerDelegateSet {
         this.disposeBindingProvider = builder.disposeBindingProvider;
         this.activityResultBindingProvider = builder.activityResultBindingProvider;
         this.permissionResultBindingProvider = builder.permissionResultBindingProvider;
+        this.liveDataBindingProvider = builder.liveDataBindingProvider;
 
     }
 
@@ -131,8 +135,9 @@ public class ControllerDelegateSet {
 
         bindViewProvider.code(enclosingElement, result, mParent != null && mParent.isBuildNewView());
         lifecycleBindingProvider.code(result);
+        liveDataBindingProvider.code(result);
 
-        if (!disposeBindingProvider.isEmpty() || bindViewProvider.isNeedDispose()){
+        if (!disposeBindingProvider.isEmpty() || bindViewProvider.isNeedDispose()) {
             disposeBindingProvider.code(result,
                     bindViewProvider.dispose());
         }
@@ -165,7 +170,8 @@ public class ControllerDelegateSet {
                 targetType,
                 delegateClassName,
                 enclosingElement,
-                ListenerBindingProvider.of(enclosingElement, processor));
+                ListenerBindingProvider.of(enclosingElement, processor),
+                LiveDataBindingProvider.of(enclosingElement));
 
     }
 
@@ -212,13 +218,15 @@ public class ControllerDelegateSet {
         private final DisposeBindingProvider disposeBindingProvider = new DisposeBindingProvider();
         private final ActivityResultBindingProvider activityResultBindingProvider = new ActivityResultBindingProvider();
         private final PermissionResultBindingProvider permissionResultBindingProvider = new PermissionResultBindingProvider();
+        private final LiveDataBindingProvider liveDataBindingProvider;
 
         Builder(ClassName targetClassName,
                 ControllerDelegateInfo controllerDelegateInfo,
                 TypeName targetTypeName,
                 ClassName delegateClassName,
                 TypeElement enclosingElement,
-                ListenerBindingProvider listenerBindingProvider) {
+                ListenerBindingProvider listenerBindingProvider,
+                LiveDataBindingProvider liveDataBindingProvider) {
             this.targetClassName = targetClassName;
             this.controllerDelegateInfo = controllerDelegateInfo;
             this.targetTypeName = targetTypeName;
@@ -226,6 +234,7 @@ public class ControllerDelegateSet {
             this.enclosingElement = enclosingElement;
             bindViewProvider = new BindViewProvider(controllerDelegateInfo);
             bindViewProvider.setListenerBindingProvider(listenerBindingProvider);
+            this.liveDataBindingProvider = liveDataBindingProvider;
         }
 
 
@@ -267,6 +276,12 @@ public class ControllerDelegateSet {
         public void addBinding(PermissionResultBinding binding) {
             if (checkMethodNotExist(binding.getMethodName())) {
                 permissionResultBindingProvider.addBinding(binding);
+            }
+        }
+
+        public void addBinding(LiveDataBinding binding) {
+            if (checkMethodNotExist(binding.getMethodName())) {
+                liveDataBindingProvider.addBinding(binding);
             }
         }
 

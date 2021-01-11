@@ -28,7 +28,7 @@ import cn.luyinbros.logger.Logger;
 import cn.luyinbros.logger.LoggerFactory;
 
 
-@Controller(R.layout.activity_bindview)
+//@Controller(R.layout.activity_bindview)
 public class BindViewActivity extends BaseActivity {
     private Logger logger = LoggerFactory.getLogger(BindViewActivity.class);
 

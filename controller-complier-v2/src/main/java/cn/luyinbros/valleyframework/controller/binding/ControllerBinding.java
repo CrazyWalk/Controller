@@ -1,0 +1,59 @@
+package cn.luyinbros.valleyframework.controller.binding;
+
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
+
+import cn.luyinbros.valleyframework.controller.ControllerType;
+import cn.luyinbros.valleyframework.controller.ResId;
+
+/**
+ * 控制器绑定
+ */
+public class ControllerBinding {
+    private ResId layoutId;
+    private ControllerType controllerType = ControllerType.OTHER;
+    private boolean isFinal;
+    private ClassName generationClassName;
+    private TypeName controllerTypeName;
+
+    // 用jtree改为resId
+    public ResId getLayoutId() {
+        return layoutId;
+    }
+
+    public boolean isFinal() {
+        return isFinal;
+    }
+
+    public void setLayoutId(ResId layoutId) {
+        this.layoutId = layoutId;
+    }
+
+    public void setFinal(boolean isFinal) {
+        this.isFinal = isFinal;
+    }
+
+    public ControllerType getControllerType() {
+        return controllerType;
+    }
+
+    public void setControllerType(ControllerType controllerType) {
+        this.controllerType = controllerType;
+    }
+
+    public ClassName getGenerationClassName() {
+        return generationClassName;
+    }
+
+    public void setGenerationClassName(ClassName generationClassName) {
+        this.generationClassName = generationClassName;
+    }
+
+    public TypeName getControllerTypeName() {
+        return controllerTypeName;
+    }
+
+    public void setControllerTypeName(TypeName controllerTypeName) {
+        this.controllerTypeName = controllerTypeName;
+    }
+}

@@ -45,6 +45,7 @@ import cn.luyinbros.valleyframework.controller.annotation.Controller;
 import cn.luyinbros.valleyframework.controller.annotation.DidChangeLifecycleEvent;
 import cn.luyinbros.valleyframework.controller.annotation.Dispose;
 import cn.luyinbros.valleyframework.controller.annotation.InitState;
+import cn.luyinbros.valleyframework.controller.annotation.LiveOB;
 import cn.luyinbros.valleyframework.controller.annotation.OnActivityResult;
 import cn.luyinbros.valleyframework.controller.annotation.OnPermissionResult;
 import cn.luyinbros.valleyframework.controller.binding.ActivityResultBinding;
@@ -53,13 +54,14 @@ import cn.luyinbros.valleyframework.controller.binding.BundleValueBinding;
 import cn.luyinbros.valleyframework.controller.binding.DisposeBinding;
 import cn.luyinbros.valleyframework.controller.binding.InitStateBinding;
 import cn.luyinbros.valleyframework.controller.binding.LifecycleBinding;
+import cn.luyinbros.valleyframework.controller.binding.LiveDataBinding;
 import cn.luyinbros.valleyframework.controller.binding.PermissionResultBinding;
 import cn.luyinbros.valleyframework.controller.binding.ViewFieldBinding;
 import cn.luyinbros.compiler.ElementHelper;
 
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@IncrementalAnnotationProcessor(IncrementalAnnotationProcessorType.DYNAMIC)
+//@IncrementalAnnotationProcessor(IncrementalAnnotationProcessorType.DYNAMIC)
 @AutoService(Processor.class)
 public class ControllerProcessor extends AbstractProcessor {
     private Filer mFilter;
@@ -124,6 +126,7 @@ public class ControllerProcessor extends AbstractProcessor {
         annotationCls.add(Controller.class);
         annotationCls.add(InitState.class);
         annotationCls.add(BuildView.class);
+        annotationCls.add(LiveOB.class);
         annotationCls.add(DidChangeLifecycleEvent.class);
         annotationCls.add(Dispose.class);
         annotationCls.add(OnActivityResult.class);
@@ -188,8 +191,6 @@ public class ControllerProcessor extends AbstractProcessor {
                 error(element, e);
             }
         }
-
-
         for (Element element : env.getElementsAnnotatedWith(DidChangeLifecycleEvent.class)) {
             if (!SuperficialValidation.validateElement(element)) continue;
             try {
@@ -198,7 +199,6 @@ public class ControllerProcessor extends AbstractProcessor {
                 error(element, e);
             }
         }
-
         for (Element element : env.getElementsAnnotatedWith(Dispose.class)) {
             if (!SuperficialValidation.validateElement(element)) continue;
             try {
@@ -357,6 +357,8 @@ public class ControllerProcessor extends AbstractProcessor {
         }
     }
 
+
+
     private void parseDispose(Element element,
                               Map<TypeElement, ControllerDelegateSet.Builder> builderMap,
                               Set<TypeElement> erasedTargetNames) {
@@ -470,7 +472,7 @@ public class ControllerProcessor extends AbstractProcessor {
 //            sb.append(stackTraceElement).append("\n");
 //        }
 //        CompileMessager.warn(e + " " + sb.toString());
-          CompileMessager.error(element, "invalidate " + e.getMessage());
+        CompileMessager.error(element, "invalidate " + e.getMessage());
     }
 
     private static class RScanner extends TreeScanner {

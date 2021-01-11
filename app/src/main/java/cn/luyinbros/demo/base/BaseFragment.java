@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStore;
 
 import cn.luyinbros.valleyframework.controller.AbstractControllerFragmentDelegate;
 import cn.luyinbros.valleyframework.controller.ControllerDelegate;

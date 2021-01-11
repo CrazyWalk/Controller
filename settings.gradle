@@ -4,4 +4,4 @@ include ':controller-annotation'
 include ':controller-api'
 include ':controller-compiler'
 include ':samplelibrary'
-
+include ':controller-complier-v2'

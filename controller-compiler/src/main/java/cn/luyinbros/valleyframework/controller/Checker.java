@@ -15,6 +15,7 @@ import cn.luyinbros.valleyframework.controller.annotation.BundleValue;
 import cn.luyinbros.valleyframework.controller.annotation.DidChangeLifecycleEvent;
 import cn.luyinbros.valleyframework.controller.annotation.Dispose;
 import cn.luyinbros.valleyframework.controller.annotation.InitState;
+import cn.luyinbros.valleyframework.controller.annotation.LiveOB;
 import cn.luyinbros.valleyframework.controller.annotation.OnActivityResult;
 import cn.luyinbros.valleyframework.controller.annotation.OnPermissionResult;
 import cn.luyinbros.compiler.ElementHelper;
@@ -85,6 +86,22 @@ public class Checker {
         }
         return false;
     }
+
+    public static boolean isInvalidateLiveOB(Element element) {
+        if (isInvalidateController(element.getEnclosingElement())) {
+            return true;
+        }
+        if (isInaccessibleElement(element, LiveOB.class, "method")) {
+            return true;
+        }
+        if (isNotMethodElement(element, LiveOB.class)) {
+            return true;
+        }
+        return false;
+    }
+
+
+
 
 
     public static boolean isInvalidateDispose(Element element) {
