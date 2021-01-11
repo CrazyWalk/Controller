@@ -42,7 +42,7 @@ dependencies {
     implementation project(':controller-api')
     implementation project(':controller-annotation')
     //implementation "androidx.asynclayoutinflater:asynclayoutinflater:1.0.0"
-    annotationProcessor project(':controller-compiler')
+    annotationProcessor project(':controller-complier-v2')
 
 
 

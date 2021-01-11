@@ -28,7 +28,7 @@ public class RSProvider {
         this.rScanner = new RScanner(messager);
     }
 
-    private ResId elementToId(Element element, Class<? extends Annotation> annotation, int value) {
+    public ResId elementToId(Element element, Class<? extends Annotation> annotation, int value) {
         // CompileMessager.warn("elementToId " + getMirror(element, annotation).toString());
         JCTree tree = (JCTree) trees.getTree(element, getMirror(element, annotation));
         if (tree != null) { // tree can be null if the references are compiled types and not source

@@ -2,6 +2,7 @@ package cn.luyinbros.valleyframework.controller;
 
 import com.google.auto.common.SuperficialValidation;
 import com.google.auto.service.AutoService;
+import com.squareup.javapoet.JavaFile;
 import com.sun.source.util.Trees;
 
 
@@ -10,7 +11,10 @@ import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -29,8 +33,20 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 
+import cn.luyinbros.valleyframework.controller.annotation.BindView;
+import cn.luyinbros.valleyframework.controller.annotation.BuildView;
+import cn.luyinbros.valleyframework.controller.annotation.BundleValue;
 import cn.luyinbros.valleyframework.controller.annotation.Controller;
+import cn.luyinbros.valleyframework.controller.annotation.DidChangeLifecycleEvent;
+import cn.luyinbros.valleyframework.controller.annotation.Dispose;
+import cn.luyinbros.valleyframework.controller.annotation.InitState;
+import cn.luyinbros.valleyframework.controller.annotation.LiveOB;
+import cn.luyinbros.valleyframework.controller.annotation.OnActivityResult;
+import cn.luyinbros.valleyframework.controller.annotation.OnPermissionResult;
+import cn.luyinbros.valleyframework.controller.binding.BindingResult;
+import cn.luyinbros.valleyframework.controller.binding.ControllerBinding;
 
+import static cn.luyinbros.valleyframework.controller.ElementHelper.getSuperClass;
 import static javax.lang.model.element.ElementKind.CLASS;
 import static javax.lang.model.element.Modifier.PRIVATE;
 
@@ -69,20 +85,73 @@ public class ControllerProcessor extends AbstractProcessor {
         //  CompileMessager.setMessager(env.getMessager());
     }
 
+    @Override
+    public Set<String> getSupportedAnnotationTypes() {
+        Set<Class<? extends Annotation>> annotationCls = new HashSet<>();
+        annotationCls.add(Controller.class);
+        annotationCls.add(InitState.class);
+        annotationCls.add(BuildView.class);
+        annotationCls.add(LiveOB.class);
+        annotationCls.add(DidChangeLifecycleEvent.class);
+        annotationCls.add(Dispose.class);
+        annotationCls.add(OnActivityResult.class);
+        annotationCls.add(OnPermissionResult.class);
+        annotationCls.add(BindView.class);
+        annotationCls.add(BundleValue.class);
+        Set<String> result = new HashSet<>();
+        for (Class<? extends Annotation> cls : annotationCls) {
+            result.add(cls.getCanonicalName());
+        }
+
+        return result;
+    }
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
+        final Map<TypeElement, ControllerDelegateInfo> bindingMap = findAndParseTargets(roundEnvironment);
+        messager.printMessage(Diagnostic.Kind.NOTE, bindingMap.size() + "", null);
+        for (Map.Entry<TypeElement, ControllerDelegateInfo> entry : bindingMap.entrySet()) {
+            TypeElement typeElement = entry.getKey();
+            ControllerDelegateInfo binding = entry.getValue();
+            JavaFile javaFile = binding.brewJava();
+            messager.printMessage(Diagnostic.Kind.NOTE, "", typeElement);
+            try {
+                javaFile.writeTo(mFilter);
+            } catch (IOException e) {
+                errorElement(typeElement, "Unable to write binding for type %s: %s", typeElement, e.getMessage());
+            }
+        }
         return false;
     }
 
 
-    private Map<TypeElement, ControllerDelegateInfo.Builder> findAndParseTargets(RoundEnvironment env) {
+    private Map<TypeElement, ControllerDelegateInfo> findAndParseTargets(RoundEnvironment env) {
         final Map<TypeElement, ControllerDelegateInfo.Builder> builderMap = new LinkedHashMap<>();
         final Set<TypeElement> erasedTargetNames = new LinkedHashSet<>();
         if (notEnsureController(env, builderMap, erasedTargetNames)) {
             return new LinkedHashMap<>();
         }
-        return builderMap;
+        messager.printMessage(Diagnostic.Kind.NOTE, "Builder");
+        messager.printMessage(Diagnostic.Kind.NOTE, builderMap.size() + "");
+
+        final Map<TypeElement, ControllerDelegateInfo> controllerDelegate = new LinkedHashMap<>();
+        for (Map.Entry<TypeElement, ControllerDelegateInfo.Builder> builderEntry : builderMap.entrySet()) {
+            controllerDelegate.put(builderEntry.getKey(), builderEntry.getValue().build());
+        }
+
+        for (Map.Entry<TypeElement, ControllerDelegateInfo> entry : controllerDelegate.entrySet()) {
+
+            TypeElement superClass = getSuperClass(entry.getKey());
+            while (superClass != null) {
+                if (controllerDelegate.containsKey(superClass)) {
+                    //   controllerDelegate.get(entry.getKey()).setParent(controllerDelegate.get(superClass));
+                    break;
+                }
+                superClass = getSuperClass(superClass);
+            }
+
+        }
+        return controllerDelegate;
     }
 
     private boolean notEnsureController(RoundEnvironment env,
@@ -111,18 +180,18 @@ public class ControllerProcessor extends AbstractProcessor {
 
         TypeElement typeElement = ElementHelper.asType(element);
         ControllerDelegateInfo.Builder builder = builderMap.get(typeElement);
-//        if (builder == null) {
-//            BindingFactory.createControllerBinding(typeElement,rsProvider.)
-//            builder = ControllerDelegateInfo.newBuilder(typeElement,
-//                    elementToId(typeElement,
-//                            Controller.class,
-//                            typeElement.getAnnotation(Controller.class).value()),
-//                    this);
-//            builderMap.put(typeElement, builder);
-//        }
-
+        if (builder == null) {
+            BindingResult<ControllerBinding> bindingResult = BindingFactory.createControllerBinding(typeElement,
+                    rsProvider.elementToId(element, Controller.class, typeElement.getAnnotation(Controller.class).value()));
+            if (checkNotBindResult(bindingResult)) {
+                return true;
+            }
+            messager.printMessage(Diagnostic.Kind.NOTE, bindingResult + "", null);
+            builderMap.put(typeElement, new ControllerDelegateInfo.Builder(bindingResult.getBinding()));
+        }
+        messager.printMessage(Diagnostic.Kind.NOTE, builderMap + "");
         erasedTargetNames.add(typeElement);
-        return true;
+        return false;
     }
 
 
@@ -138,15 +207,24 @@ public class ControllerProcessor extends AbstractProcessor {
         return false;
     }
 
+    private <T> boolean checkNotBindResult(BindingResult<T> result) {
+        if (result.isError()) {
+            messager.printMessage(Diagnostic.Kind.ERROR, result.getMessage(), result.getElement());
+            return true;
+        } else if (result.isWarn()) {
+            messager.printMessage(Diagnostic.Kind.WARNING, result.getMessage(), result.getElement());
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void errorElement(Element element, String message, Object... args) {
+        printMessage(Diagnostic.Kind.ERROR, element, message, args);
+    }
 
 
     private void errorElement(Element element, Throwable e) {
-//        StackTraceElement[] stackTraceElementArray = e.getStackTrace();
-//        StringBuilder sb = new StringBuilder();
-//        for (StackTraceElement stackTraceElement : stackTraceElementArray) {
-//            sb.append(stackTraceElement).append("\n");
-//        }
-//        CompileMessager.warn(e + " " + sb.toString());
         messager.printMessage(Diagnostic.Kind.ERROR, "invalidate " + e.getMessage(), element);
     }
 
@@ -154,4 +232,11 @@ public class ControllerProcessor extends AbstractProcessor {
         messager.printMessage(Diagnostic.Kind.ERROR, message, element);
     }
 
+    public void printMessage(Diagnostic.Kind kind, Element element, String message, Object[] args) {
+        if (args.length > 0) {
+            message = String.format(message, args);
+        }
+        messager.printMessage(kind, message, element);
+
+    }
 }

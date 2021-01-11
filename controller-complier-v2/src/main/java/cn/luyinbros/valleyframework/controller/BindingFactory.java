@@ -33,6 +33,7 @@ public class BindingFactory {
         binding.setControllerTypeName(targetType);
         binding.setFinal(enclosingElement.getModifiers().contains(FINAL));
         binding.setLayoutId(layoutRes);
+        binding.setTypeElement(enclosingElement);
         if (TypeHelper.isSubtypeOfType(typeMirror, Constants.TYPE_ACTIVITY)) {
             binding.setControllerType(ControllerType.ACTIVITY);
         } else if (TypeHelper.isSubtypeOfType(typeMirror, Constants.TYPE_FRAGMENT)) {

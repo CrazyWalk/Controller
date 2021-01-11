@@ -1,5 +1,7 @@
 package cn.luyinbros.demo;
 
+import android.content.Intent;
+
 import cn.luyinbros.logger.AndroidLoggerProvider;
 import cn.luyinbros.logger.LoggerFactory;
 

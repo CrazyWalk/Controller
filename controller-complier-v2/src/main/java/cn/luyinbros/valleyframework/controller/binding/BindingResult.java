@@ -40,7 +40,6 @@ public class BindingResult<T> {
         this.element = element;
     }
 
-    @Nullable
     public T getBinding() {
         return binding;
     }
@@ -75,6 +74,15 @@ public class BindingResult<T> {
         return new BindingResult<T>(true, false, message, element);
     }
 
-
+    @Override
+    public String toString() {
+        return "BindingResult{" +
+                "binding=" + binding +
+                ", isError=" + isError +
+                ", isWarn=" + isWarn +
+                ", message='" + message + '\'' +
+                ", element=" + element +
+                '}';
+    }
 }
 
