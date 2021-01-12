@@ -143,8 +143,9 @@ public class BindViewProvider {
                 methodSpecs.addAll(initViewCodeBlock(result, methodBuilder));
                 methodBuilder.addStatement("return view");
             } else {
-                methodBuilder.addStatement("return super.buildView($L)",
-                        "buildContext");
+                methodBuilder.addStatement("$T view= super.buildView($L)", Constants.CLASS_VIEW, "buildContext");
+                methodSpecs.addAll(initViewCodeBlock(result, methodBuilder));
+                methodBuilder.addStatement("return view");
             }
 
         }

@@ -15,7 +15,7 @@ import cn.luyinbros.logger.Logger;
 import cn.luyinbros.logger.LoggerFactory;
 import cn.luyinbros.valleyframework.controller.annotation.DidChangeLifecycleEvent;
 
-//@Controller(R.layout.activity_home)
+@Controller(R.layout.activity_home)
 public class HomeActivity extends BaseActivity {
     private Logger logger = LoggerFactory.getLogger(HomeActivity.class);
 

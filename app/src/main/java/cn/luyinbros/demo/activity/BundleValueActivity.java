@@ -23,7 +23,7 @@ import cn.luyinbros.demo.data.SerializableObject;
 import cn.luyinbros.logger.Logger;
 import cn.luyinbros.logger.LoggerFactory;
 
-//@Controller
+@Controller
 public class BundleValueActivity extends BaseActivity {
     private Logger logger = LoggerFactory.getLogger(BundleValueActivity.class);
 

@@ -16,7 +16,7 @@ import cn.luyinbros.demo.controller.OnSingleClick;
 import cn.luyinbros.logger.Logger;
 import cn.luyinbros.logger.LoggerFactory;
 
-//@Controller(R.layout.activity_rx_permisison)
+@Controller(R.layout.activity_rx_permisison)
 public class OnPermissionResultActivity extends BaseActivity {
 
     private Logger logger = LoggerFactory.getLogger(OnPermissionResultActivity.class);

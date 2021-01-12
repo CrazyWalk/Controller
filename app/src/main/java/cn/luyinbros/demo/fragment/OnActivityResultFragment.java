@@ -14,7 +14,7 @@ import cn.luyinbros.demo.controller.OnSingleClick;
 import cn.luyinbros.logger.Logger;
 import cn.luyinbros.logger.LoggerFactory;
 
-//@Controller(R.layout.activity_on_result)
+@Controller(R.layout.activity_on_result)
 public class OnActivityResultFragment extends BaseFragment {
     private Logger logger = LoggerFactory.getLogger(OnActivityResultFragment.class);
     private int requestCode = 1;
