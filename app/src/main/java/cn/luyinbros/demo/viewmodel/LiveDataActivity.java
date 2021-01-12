@@ -21,7 +21,7 @@ import cn.luyinbros.valleyframework.controller.annotation.Dispose;
 import cn.luyinbros.valleyframework.controller.annotation.InitState;
 import cn.luyinbros.valleyframework.controller.annotation.LiveOB;
 
-@Controller(R.layout.activity_live_data)
+//@Controller(R.layout.activity_live_data)
 public class LiveDataActivity extends BaseActivity {
     @BindView(R.id.textView)
     TextView textView;

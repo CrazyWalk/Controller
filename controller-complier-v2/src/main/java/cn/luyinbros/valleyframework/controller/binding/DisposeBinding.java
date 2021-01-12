@@ -12,5 +12,10 @@ public class DisposeBinding {
         return methodName;
     }
 
-
+    @Override
+    public String toString() {
+        return "DisposeBinding{" +
+                "methodName='" + methodName + '\'' +
+                '}';
+    }
 }

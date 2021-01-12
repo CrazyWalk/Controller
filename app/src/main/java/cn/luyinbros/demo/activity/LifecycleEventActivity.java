@@ -11,7 +11,7 @@ import cn.luyinbros.logger.Logger;
 import cn.luyinbros.logger.LoggerFactory;
 
 
-//@Controller(R.layout.activity_lifecycle_event)
+@Controller(R.layout.activity_lifecycle_event)
 public class LifecycleEventActivity extends BaseActivity {
     private Logger logger = LoggerFactory.getLogger(LifecycleEventActivity.class);
 

@@ -14,6 +14,7 @@ import java.util.Arrays;
 import cn.luyinbros.valleyframework.controller.annotation.BuildView;
 import cn.luyinbros.valleyframework.controller.annotation.BundleValue;
 import cn.luyinbros.valleyframework.controller.annotation.Controller;
+import cn.luyinbros.valleyframework.controller.annotation.Dispose;
 import cn.luyinbros.valleyframework.controller.annotation.InitState;
 import cn.luyinbros.valleyframework.controller.annotation.Option;
 import cn.luyinbros.demo.base.BaseActivity;
@@ -22,7 +23,7 @@ import cn.luyinbros.demo.data.SerializableObject;
 import cn.luyinbros.logger.Logger;
 import cn.luyinbros.logger.LoggerFactory;
 
-//@Controller
+@Controller
 public class BundleValueActivity extends BaseActivity {
     private Logger logger = LoggerFactory.getLogger(BundleValueActivity.class);
 
@@ -91,6 +92,10 @@ public class BundleValueActivity extends BaseActivity {
         logger.debug(toString());
     }
 
+    @Dispose
+    void dispose() {
+
+    }
 
     @NonNull
     @Override

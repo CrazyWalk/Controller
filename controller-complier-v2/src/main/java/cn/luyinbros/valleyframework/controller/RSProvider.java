@@ -23,7 +23,7 @@ public class RSProvider {
     private final RScanner rScanner;
 
     public RSProvider(Trees trees,
-                      Messager messager) {
+                      CompilerMessager messager) {
         this.trees = trees;
         this.rScanner = new RScanner(messager);
     }
@@ -78,9 +78,9 @@ public class RSProvider {
 
     private static class RScanner extends TreeScanner {
         private Map<Integer, ResId> resourceIds = new LinkedHashMap<>();
-        private final Messager messager;
+        private final CompilerMessager messager;
 
-        private RScanner(Messager messager) {
+        private RScanner(CompilerMessager messager) {
             this.messager = messager;
         }
 
@@ -127,7 +127,7 @@ public class RSProvider {
                     int value = (Integer) Objects.requireNonNull(((Symbol.VarSymbol) symbol).getConstantValue());
                     id = new ResId(value, symbol);
                 } catch (Throwable ignored) {
-                    messager.printMessage(Diagnostic.Kind.ERROR, ignored.getMessage());
+                    messager.errorMessage(ignored.getMessage());
                     //CompileMessager.note(ignored.getMessage());
                 }
             }

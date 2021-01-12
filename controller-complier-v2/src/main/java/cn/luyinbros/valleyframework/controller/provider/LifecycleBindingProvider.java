@@ -1,4 +1,4 @@
-package cn.luyinbros.valleyframework.controller.binding;
+package cn.luyinbros.valleyframework.controller.provider;
 
 import androidx.lifecycle.Lifecycle;
 
@@ -15,6 +15,7 @@ import java.util.List;
 import javax.lang.model.element.Modifier;
 
 import cn.luyinbros.valleyframework.controller.Constants;
+import cn.luyinbros.valleyframework.controller.binding.LifecycleBinding;
 
 import static javax.lang.model.element.Modifier.PROTECTED;
 
