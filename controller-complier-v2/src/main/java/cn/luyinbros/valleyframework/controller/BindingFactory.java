@@ -1,5 +1,6 @@
 package cn.luyinbros.valleyframework.controller;
 
+import com.google.common.collect.ImmutableList;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
@@ -20,12 +21,14 @@ import cn.luyinbros.valleyframework.controller.annotation.OnActivityResult;
 import cn.luyinbros.valleyframework.controller.annotation.OnPermissionResult;
 import cn.luyinbros.valleyframework.controller.binding.ActivityResultBinding;
 import cn.luyinbros.valleyframework.controller.binding.BindingResult;
+import cn.luyinbros.valleyframework.controller.binding.BuildViewBinding;
 import cn.luyinbros.valleyframework.controller.binding.BundleValueBinding;
 import cn.luyinbros.valleyframework.controller.binding.ControllerBinding;
 import cn.luyinbros.valleyframework.controller.binding.DisposeBinding;
 import cn.luyinbros.valleyframework.controller.binding.InitStateBinding;
 import cn.luyinbros.valleyframework.controller.binding.LifecycleBinding;
 import cn.luyinbros.valleyframework.controller.binding.PermissionResultBinding;
+import cn.luyinbros.valleyframework.controller.binding.ViewFieldBinding;
 
 import static javax.lang.model.element.Modifier.FINAL;
 
@@ -63,6 +66,16 @@ public class BindingFactory {
         binding.setFiledName(variableElement.getSimpleName().toString());
         binding.setTypeMirror(variableElement.asType());
         binding.setRequired(Utils.isNotNullElement(element));
+        return BindingResult.createBindResult(binding);
+    }
+
+    public static BindingResult<ViewFieldBinding> createViewFieldBinding(Element element, ResId resId) {
+        VariableElement variableElement = ElementHelper.asVariable(element);
+        ViewFieldBinding binding = new ViewFieldBinding();
+        binding.setResId(resId);
+        binding.setFieldName(variableElement.getSimpleName().toString());
+        binding.setRequired(Utils.isNotNullElement(element));
+        binding.setElement(element);
         return BindingResult.createBindResult(binding);
     }
 
@@ -240,6 +253,73 @@ public class BindingFactory {
             return BindingResult.createErrorResult(element, "parameters must empty");
         }
         return BindingResult.createBindResult(new DisposeBinding(executableElement.getSimpleName().toString()));
+    }
+
+
+    public static BindingResult<BuildViewBinding> createBuildView(Element element) {
+
+        final ExecutableElement executableElement = ElementHelper.asExecutable(element);
+        final TypeMirror returnType = executableElement.getReturnType();
+
+        if (!(returnType.getKind() == TypeKind.VOID || returnType.getKind() == TypeKind.DECLARED)) {
+            return BindingResult.createErrorResult(element, "return type must void or Object");
+        }
+
+
+        ClassName returnClassName = null;
+        List<FullTypeName> argumentClassNames = null;
+
+        if (returnType.getKind() == TypeKind.VOID) {
+            final List<? extends VariableElement> methodParameters = executableElement.getParameters();
+            if (methodParameters.size() <= 2) {
+                argumentClassNames = new ArrayList<>();
+
+                boolean foundBuildContext = false;
+                boolean foundView = false;
+                for (VariableElement variableElement : methodParameters) {
+                    TypeMirror mirror = variableElement.asType();
+                    if (TypeHelper.isTypeEqual(mirror, Constants.TYPE_BUILD_CONTEXT)) {
+                        if (foundBuildContext) {
+                            return BindingResult.createErrorResult(element, "two buildContext");
+                        }
+                        argumentClassNames.add(new FullTypeName(TypeNameHelper.get(mirror), mirror));
+                        foundBuildContext = true;
+
+                    } else if (TypeHelper.isSubtypeOfType(mirror, Constants.TYPE_VIEW)) {
+                        if (foundView) {
+                            return BindingResult.createErrorResult(element, "two View");
+                        }
+                        argumentClassNames.add(new FullTypeName(TypeNameHelper.get(mirror), mirror));
+                        foundView = true;
+                    } else {
+                        return BindingResult.createErrorResult(element, "not support argument");
+                    }
+                }
+            } else {
+                return BindingResult.createErrorResult(element, "not support argument");
+            }
+        } else if (returnType.getKind() == TypeKind.DECLARED) {
+            if (TypeHelper.isSubtypeOfType(returnType, Constants.TYPE_VIEW)) {
+                returnClassName = TypeNameHelper.get(returnType);
+                final List<? extends VariableElement> methodParameters = executableElement.getParameters();
+                if (methodParameters.size() == 0) {
+                    argumentClassNames = new ArrayList<>();
+                } else if (methodParameters.size() == 1) {
+                    VariableElement variableElement = methodParameters.get(0);
+                    TypeMirror mirror = variableElement.asType();
+                    if (TypeHelper.isTypeEqual(mirror, Constants.TYPE_BUILD_CONTEXT)) {
+                        argumentClassNames = ImmutableList.of(new FullTypeName(TypeNameHelper.get(mirror), mirror));
+                    }
+                }
+            }else{
+                return BindingResult.createErrorResult(element, "not support argument");
+            }
+        }
+
+        final String methodName = executableElement.getSimpleName().toString();
+        return BindingResult.createBindResult(new BuildViewBinding(methodName,
+                argumentClassNames, returnClassName));
+
     }
 
     private static ClassName getDelegateClassName(TypeElement typeElement) {

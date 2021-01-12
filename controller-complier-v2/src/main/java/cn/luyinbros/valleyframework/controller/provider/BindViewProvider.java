@@ -6,18 +6,23 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 
+import org.checkerframework.checker.units.qual.A;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
+import javax.tools.Diagnostic;
 
 
 import cn.luyinbros.valleyframework.controller.CompilerMessager;
 import cn.luyinbros.valleyframework.controller.Constants;
 
 import cn.luyinbros.valleyframework.controller.FullTypeName;
+import cn.luyinbros.valleyframework.controller.MethodFactory;
 import cn.luyinbros.valleyframework.controller.ResId;
 import cn.luyinbros.valleyframework.controller.TypeHelper;
 import cn.luyinbros.valleyframework.controller.TypeNameHelper;
@@ -47,10 +52,19 @@ public class BindViewProvider {
     public BindViewProvider(ControllerBinding controllerBinding,
                             CompilerMessager compilerMessager) {
         this.controllerBinding = controllerBinding;
+        this.messager = compilerMessager;
     }
 
     public void setListenerBindingProvider(ListenerBindingProvider listenerBindingProvider) {
         this.listenerBindingProvider = listenerBindingProvider;
+    }
+
+    public boolean isFieldEmpty() {
+        return viewFieldBindings.isEmpty();
+    }
+
+    public boolean isListenerEmpty() {
+        return listenerBindingProvider == null || listenerBindingProvider.getListenerBindings().isEmpty();
     }
 
 
@@ -58,6 +72,11 @@ public class BindViewProvider {
         return bindViewBinding != null || controllerBinding.getLayoutId() != null;
     }
 
+    private boolean isNeedInitView() {
+        return !((buildViewBindings == null || buildViewBindings.isEmpty()) &&
+                viewFieldBindings.isEmpty() &&
+                listenerBindingProvider.getListenerBindings().isEmpty());
+    }
 
     public void addBinding(BuildViewBinding binding) {
         if (binding.getReturnClassName() != null) {
@@ -79,14 +98,15 @@ public class BindViewProvider {
     }
 
 
-    public void code(TypeElement typeElement, TypeSpec.Builder result, boolean isParentBuildNewView) {
+    public List<MethodSpec> code(TypeElement typeElement, TypeSpec.Builder result, boolean isParentBuildNewView) {
         if (isParentBuildNewView) {
             if (isBuildNewView()) {
-                messager.errorElement(typeElement, "父类已经构建了视图,无法重复构建");
-                return;
+                messager.errorElement(typeElement, "parent is build view");
+                return Collections.emptyList();
             }
         }
 
+        List<MethodSpec> methodSpecs = new ArrayList<>();
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("buildView")
                 .addAnnotation(Override.class)
                 .addModifiers(PROTECTED)
@@ -97,8 +117,7 @@ public class BindViewProvider {
             methodBuilder.addStatement("$T view=super.buildView($L)",
                     Constants.CLASS_VIEW,
                     "buildContext");
-            methodBuilder.addCode(bindViewCodeBlock(result));
-            generationBuildView(methodBuilder);
+            methodSpecs.addAll(initViewCodeBlock(result, methodBuilder));
             methodBuilder.addStatement("return view");
         } else if (bindViewBinding != null) {
             if (layoutId != null) {
@@ -116,14 +135,12 @@ public class BindViewProvider {
                         Constants.CLASS_OBJECTS,
                         bindViewBinding.getMethodName());
             }
-            methodBuilder.addCode(bindViewCodeBlock(result));
-            generationBuildView(methodBuilder);
+            methodSpecs.addAll(initViewCodeBlock(result, methodBuilder));
             methodBuilder.addStatement("return view");
         } else {
             if (layoutId != null) {
                 methodBuilder.addStatement("$T view= buildContext.inflate($L)", Constants.CLASS_VIEW, layoutId.getCode());
-                methodBuilder.addCode(bindViewCodeBlock(result));
-                generationBuildView(methodBuilder);
+                methodSpecs.addAll(initViewCodeBlock(result, methodBuilder));
                 methodBuilder.addStatement("return view");
             } else {
                 methodBuilder.addStatement("return super.buildView($L)",
@@ -131,9 +148,148 @@ public class BindViewProvider {
             }
 
         }
-
         result.addMethod(methodBuilder.build());
+        return methodSpecs;
     }
+
+    private List<MethodSpec> initViewCodeBlock(TypeSpec.Builder result, MethodSpec.Builder methodBuilder) {
+        if (isNeedInitView()) {
+            List<MethodSpec> specs = new ArrayList<>();
+            methodBuilder.beginControlFlow("if(view!=null)");
+            if (!viewFieldBindings.isEmpty()) {
+                methodBuilder.addStatement("$L($L)", MethodFactory.METHOD_NAME_INJECT_VIEW, "view");
+                specs.add(createInjectView());
+            }
+            if (!listenerBindingProvider.getListenerBindings().isEmpty()) {
+                methodBuilder.addStatement("$L($L)", MethodFactory.METHOD_NAME_INJECT_LISTENER, "view");
+                specs.add(createInjectListener(result));
+            }
+            generationBuildView(methodBuilder);
+            methodBuilder.endControlFlow();
+            // methodBuilder.addCode(bindViewCodeBlock(result));
+            return specs;
+        }
+        return Collections.emptyList();
+    }
+
+
+    private MethodSpec createInjectView() {
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(MethodFactory.METHOD_NAME_INJECT_VIEW)
+                .addModifiers(PRIVATE)
+                .addParameter(Constants.CLASS_VIEW, "view")
+                .returns(ClassName.VOID);
+        for (ViewFieldBinding binding : viewFieldBindings) {
+            if (binding.isRequired()) {
+                methodBuilder.addStatement("target.$L=$L.requiredViewById(view,$L)",
+                        binding.getFieldName(),
+                        Constants.CLASS_CONTROLLER_HELPER,
+                        binding.getResId().getCode());
+            } else {
+                methodBuilder.addStatement("target.$L=$L.findViewById(view,$L)",
+                        binding.getFieldName(),
+                        Constants.CLASS_CONTROLLER_HELPER,
+                        binding.getResId().getCode());
+            }
+        }
+        return methodBuilder.build();
+    }
+
+    private MethodSpec createInjectListener(TypeSpec.Builder result) {
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(MethodFactory.METHOD_NAME_INJECT_LISTENER)
+                .addModifiers(PRIVATE)
+                .addParameter(Constants.CLASS_VIEW, "view")
+                .returns(ClassName.VOID);
+
+        List<ListenerBinding> listenerBindings = listenerBindingProvider.getListenerBindings();
+        if (listenerBindings.size() > 0) {
+            {
+                HashSet<ResId> hashSet = new HashSet<>();
+                for (ListenerBinding listenerBinding : listenerBindings) {
+                    for (ResId resId : listenerBinding.getIds()) {
+                        if (find(resId) == null) {
+                            hashSet.add(resId);
+                        }
+                    }
+                }
+
+                for (ResId resId : hashSet) {
+                    String fieldName = getListenerIdFiledName(resId);
+                    result.addField(Constants.CLASS_VIEW, getListenerIdFiledName(resId), PRIVATE);
+                    methodBuilder.addStatement("$L=$L.requiredViewById(view,$L)", fieldName, Constants.CLASS_CONTROLLER_HELPER, resId.getCode());
+                }
+            }
+
+
+            for (ListenerBinding listenerBinding : listenerBindings) {
+                ListenerClassInfo listenerClassInfo = listenerBinding.getListenerClassInfo();
+                String targetType = listenerClassInfo.getTargetType();
+                String remover = listenerClassInfo.getRemover();
+                String setter = listenerClassInfo.getSetter();
+
+                for (ResId id : listenerBinding.getIds()) {
+                    CodeBlock listenerCodeBlock;
+
+                    if (remover.isEmpty()) {
+                        listenerCodeBlock = generateListenerTypeSpec(result, listenerBinding);
+                    } else {
+                        String fieldName = getListenerFieldName(listenerBinding);
+                        result.addField(ClassName.bestGuess(listenerBinding.getListenerClassInfo().getType()),
+                                fieldName, PRIVATE);
+                        methodBuilder.addStatement("$L=$L", fieldName, generateListenerTypeSpec(result, listenerBinding));
+                        listenerCodeBlock = CodeBlock.builder().add(fieldName).build();
+                    }
+
+
+                    {
+                        CodeBlock viewCodeBlock;
+
+                        ViewFieldBinding viewFieldBinding = find(id);
+                        if (viewFieldBinding != null) {
+                            if (viewFieldBinding.isRequired() != listenerBinding.isRequired()) {
+                                messager.errorElement(viewFieldBinding.getElement(), listenerBinding.getMethodName() +
+                                        " is option." +
+                                        "but id:" +
+                                        viewFieldBinding.getResId().getCode() +
+                                        "is not option");
+                            }
+                            viewCodeBlock = CodeBlock.builder()
+                                    .add("target.$L", viewFieldBinding.getFieldName())
+                                    .build();
+                        } else {
+                            viewCodeBlock = CodeBlock.builder()
+                                    .add("(($L)$L)",
+                                            targetType,
+                                            getListenerIdFiledName(id))
+                                    .build();
+                        }
+
+                        if (listenerBinding.isRequired()) {
+                            methodBuilder.addStatement("$L.$L($L)",
+                                    viewCodeBlock,
+                                    setter,
+                                    listenerCodeBlock);
+                        } else {
+                            if (viewFieldBinding != null) {
+                                methodBuilder.beginControlFlow("if(target.$L!=null)", viewFieldBinding.getFieldName());
+                            } else {
+                                methodBuilder.beginControlFlow("if($L!=null)", getListenerIdFiledName(id));
+
+                            }
+                            methodBuilder.addStatement("$L.$L($L)",
+                                    viewCodeBlock,
+                                    setter,
+                                    listenerCodeBlock);
+                            methodBuilder.endControlFlow();
+                        }
+
+                    }
+
+                }
+            }
+        }
+        return methodBuilder.build();
+    }
+
 
     private void generationBuildView(MethodSpec.Builder methodBuilder) {
         if (buildViewBindings != null && !buildViewBindings.isEmpty()) {
@@ -155,10 +311,99 @@ public class BindViewProvider {
         }
     }
 
+    public MethodSpec createUninjectView() {
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(MethodFactory.METHOD_NAME_UNINJECT_VIEW)
+                .addModifiers(PRIVATE)
+                .returns(ClassName.VOID);
+        for (ViewFieldBinding binding : viewFieldBindings) {
+            methodBuilder.addStatement("target.$L=null",
+                    binding.getFieldName());
+        }
+        return methodBuilder.build();
+    }
+
+    public MethodSpec createUninjectListener() {
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(MethodFactory.METHOD_NAME_UNINJECT_LISTENER)
+                .addModifiers(PRIVATE)
+                .returns(ClassName.VOID);
+        List<ListenerBinding> listenerBindings = listenerBindingProvider.getListenerBindings();
+        if (listenerBindings.size() > 0) {
+
+            for (ListenerBinding listenerBinding : listenerBindings) {
+                ListenerClassInfo listenerClassInfo = listenerBinding.getListenerClassInfo();
+                String targetType = listenerClassInfo.getTargetType();
+                String remover = listenerClassInfo.getRemover();
+                String setter = listenerClassInfo.getSetter();
+
+                for (ResId id : listenerBinding.getIds()) {
+
+                    ViewFieldBinding viewFieldBinding = find(id);
+
+                    if (!listenerBinding.isRequired()) {
+                        if (viewFieldBinding != null) {
+                            methodBuilder.beginControlFlow("if(target.$L!=null)", viewFieldBinding.getFieldName());
+                        } else {
+                            methodBuilder.beginControlFlow("if($L!=null)", getListenerIdFiledName(id));
+                        }
+                    }
+
+
+                    CodeBlock listenerCodeBlock;
+                    CodeBlock viewCodeBlock;
+
+                    if (viewFieldBinding != null) {
+                        viewCodeBlock = CodeBlock.builder()
+                                .add("target.$L", viewFieldBinding.getFieldName())
+                                .build();
+                    } else {
+                        viewCodeBlock = CodeBlock.builder()
+                                .add("(($L)$L)",
+                                        targetType,
+                                        getListenerIdFiledName(id))
+                                .build();
+                    }
+                    if (remover.isEmpty()) {
+                        listenerCodeBlock = CodeBlock.builder().add("$L(null)", setter).build();
+                    } else {
+                        String fieldName = getListenerFieldName(listenerBinding);
+                        listenerCodeBlock = CodeBlock.builder().add("$L($L)", remover, fieldName).build();
+                    }
+
+                    methodBuilder.addStatement("$L.$L",
+                            viewCodeBlock,
+                            listenerCodeBlock);
+
+                    if (!listenerBinding.isRequired()) {
+                        methodBuilder.endControlFlow();
+                    }
+                }
+
+            }
+
+            {
+                HashSet<ResId> hashSet = new HashSet<>();
+                for (ListenerBinding listenerBinding : listenerBindings) {
+                    for (ResId resId : listenerBinding.getIds()) {
+                        if (find(resId) == null) {
+                            hashSet.add(resId);
+                        }
+                    }
+                }
+
+                for (ResId resId : hashSet) {
+                    String fieldName = getListenerIdFiledName(resId);
+                    methodBuilder.addStatement("$L=null", getListenerIdFiledName(resId));
+                }
+            }
+        }
+        return methodBuilder.build();
+    }
+
     public boolean isNeedDispose() {
         return (listenerBindingProvider != null && listenerBindingProvider.getListenerBindings().size() > 0) ||
                 viewFieldBindings.size() > 0;
     }
+
 
     public CodeBlock dispose() {
         CodeBlock.Builder codeBlockBuilder = CodeBlock.builder();

@@ -54,12 +54,15 @@ import cn.luyinbros.valleyframework.controller.annotation.OnActivityResult;
 import cn.luyinbros.valleyframework.controller.annotation.OnPermissionResult;
 import cn.luyinbros.valleyframework.controller.binding.ActivityResultBinding;
 import cn.luyinbros.valleyframework.controller.binding.BindingResult;
+import cn.luyinbros.valleyframework.controller.binding.BuildViewBinding;
 import cn.luyinbros.valleyframework.controller.binding.BundleValueBinding;
 import cn.luyinbros.valleyframework.controller.binding.ControllerBinding;
 import cn.luyinbros.valleyframework.controller.binding.DisposeBinding;
 import cn.luyinbros.valleyframework.controller.binding.InitStateBinding;
 import cn.luyinbros.valleyframework.controller.binding.LifecycleBinding;
 import cn.luyinbros.valleyframework.controller.binding.PermissionResultBinding;
+import cn.luyinbros.valleyframework.controller.binding.ViewFieldBinding;
+import cn.luyinbros.valleyframework.controller.provider.ListenerBindingProvider;
 
 import static cn.luyinbros.valleyframework.controller.ElementHelper.getSuperClass;
 import static java.lang.Enum.valueOf;
@@ -173,6 +176,18 @@ public class ControllerProcessor extends AbstractProcessor {
         if (notEnsureDispose(env, builderMap, erasedTargetNames)) {
             return Collections.emptyMap();
         }
+        //buildView
+        if (notEnsureBuildView(env, builderMap, erasedTargetNames)) {
+            return Collections.emptyMap();
+        }
+        //bindView
+        if (notEnsureBindView(env, builderMap, erasedTargetNames)) {
+            return Collections.emptyMap();
+        }
+        //listener
+        for (Map.Entry<TypeElement, ControllerDelegateInfo.Builder> entry : builderMap.entrySet()) {
+            entry.getValue().setListenerBindingProvider(ListenerBindingProvider.of(entry.getKey(), rsProvider));
+        }
 
         final Map<TypeElement, ControllerDelegateInfo> controllerDelegateMap = new LinkedHashMap<>();
         for (Map.Entry<TypeElement, ControllerDelegateInfo.Builder> builderEntry : builderMap.entrySet()) {
@@ -226,7 +241,7 @@ public class ControllerProcessor extends AbstractProcessor {
             if (checkNotBindResult(bindingResult)) {
                 return true;
             }
-            builderMap.put(typeElement, new ControllerDelegateInfo.Builder(bindingResult.getBinding()));
+            builderMap.put(typeElement, new ControllerDelegateInfo.Builder(bindingResult.getBinding(), messager));
         }
         erasedTargetNames.add(typeElement);
         return false;
@@ -322,6 +337,97 @@ public class ControllerProcessor extends AbstractProcessor {
         }
         return false;
     }
+
+    private boolean notEnsureBuildView(RoundEnvironment env,
+                                       Map<TypeElement, ControllerDelegateInfo.Builder> builderMap,
+                                       Set<TypeElement> erasedTargetNames) {
+        for (Element element : env.getElementsAnnotatedWith(BuildView.class)) {
+            if (!SuperficialValidation.validateElement(element)) continue;
+            try {
+                if (notParseBuildView(element, builderMap, erasedTargetNames)) {
+                    return true;
+                }
+            } catch (Exception e) {
+                messager.errorElement(element, e);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean notParseBuildView(Element element,
+                                      Map<TypeElement, ControllerDelegateInfo.Builder> builderMap,
+                                      Set<TypeElement> erasedTargetNames) {
+
+        if (checkNotController(element.getEnclosingElement())) {
+            return true;
+        }
+        if (isInaccessibleElement(element, BuildView.class, "method")) {
+            return true;
+        }
+
+        if (isNotMethodElement(element, BuildView.class)) {
+            return true;
+        }
+        TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
+        final ControllerDelegateInfo.Builder builder = builderMap.get(enclosingElement);
+        if (builder != null) {
+            BindingResult<BuildViewBinding> bindingResult = BindingFactory.createBuildView(element);
+            if (checkNotBindResult(bindingResult)) {
+                return true;
+            }
+            builder.addBinding(bindingResult.getBinding());
+            erasedTargetNames.add(enclosingElement);
+        }
+        return false;
+    }
+
+
+    private boolean notEnsureBindView(RoundEnvironment env,
+                                      Map<TypeElement, ControllerDelegateInfo.Builder> builderMap,
+                                      Set<TypeElement> erasedTargetNames) {
+        for (Element element : env.getElementsAnnotatedWith(BindView.class)) {
+            if (!SuperficialValidation.validateElement(element)) continue;
+            try {
+                if (notParseBindView(element, builderMap, erasedTargetNames)) {
+                    return true;
+                }
+            } catch (Exception e) {
+                messager.errorElement(element, e);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean notParseBindView(Element element,
+                                     Map<TypeElement, ControllerDelegateInfo.Builder> builderMap,
+                                     Set<TypeElement> erasedTargetNames) {
+
+        if (checkNotController(element.getEnclosingElement())) {
+            return true;
+        }
+        if (isInaccessibleElement(element, BindView.class, "field")) {
+            return true;
+        }
+        if (isNotFieldElement(element, BindView.class)) {
+            return true;
+        }
+
+        TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
+        final ControllerDelegateInfo.Builder builder = builderMap.get(enclosingElement);
+        if (builder != null) {
+            BindingResult<ViewFieldBinding> bindingResult = BindingFactory.createViewFieldBinding(element,
+                    rsProvider.elementToId(element, BindView.class, element.getAnnotation(BindView.class).value()));
+            if (checkNotBindResult(bindingResult)) {
+                return true;
+            }
+            builder.addBinding(bindingResult.getBinding());
+            erasedTargetNames.add(enclosingElement);
+        }
+        return false;
+    }
+
 
     private boolean notEnsureLifecycle(RoundEnvironment env,
                                        Map<TypeElement, ControllerDelegateInfo.Builder> builderMap,

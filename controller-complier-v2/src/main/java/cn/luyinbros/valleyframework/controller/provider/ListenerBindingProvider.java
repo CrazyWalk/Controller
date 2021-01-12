@@ -60,7 +60,6 @@ public class ListenerBindingProvider {
                         }
                     }
                 }
-                // if (enclosedElement.getAnnotationMirrors())
             }
         }
 

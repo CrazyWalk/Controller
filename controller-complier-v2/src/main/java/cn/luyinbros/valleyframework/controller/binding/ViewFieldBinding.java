@@ -27,16 +27,22 @@ public class ViewFieldBinding {
         return element;
     }
 
-//    public static ViewFieldBinding create(Element element, ResId resId) {
-//
-//        VariableElement variableElement = ElementHelper.asVariable(element);
-//        ViewFieldBinding binding = new ViewFieldBinding();
-//        binding.resId = resId;
-//        binding.fieldName = variableElement.getSimpleName().toString();
-//        binding.required = Utils.isNotNullElement(element);
-//        binding.element=element;
-//        return binding;
-//    }
+
+    public void setResId(ResId resId) {
+        this.resId = resId;
+    }
+
+    public void setFieldName(String fieldName) {
+        this.fieldName = fieldName;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
+
+    public void setElement(Element element) {
+        this.element = element;
+    }
 
     @Override
     public String toString() {

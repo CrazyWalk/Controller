@@ -20,7 +20,7 @@ import cn.luyinbros.logger.Logger;
 import cn.luyinbros.logger.LoggerFactory;
 
 
-@Controller(R.layout.layout_bundle)
+//@Controller(R.layout.layout_bundle)
 public class BundleValueFragment extends BaseFragment {
     private Logger logger = LoggerFactory.getLogger(BundleValueFragment.class);
 

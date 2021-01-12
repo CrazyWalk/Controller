@@ -127,7 +127,7 @@ public class RSProvider {
                     int value = (Integer) Objects.requireNonNull(((Symbol.VarSymbol) symbol).getConstantValue());
                     id = new ResId(value, symbol);
                 } catch (Throwable ignored) {
-                    messager.errorMessage(ignored.getMessage());
+                    //ignore
                     //CompileMessager.note(ignored.getMessage());
                 }
             }

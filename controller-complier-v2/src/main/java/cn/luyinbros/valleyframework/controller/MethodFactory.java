@@ -15,6 +15,11 @@ public class MethodFactory {
     public static final String METHOD_NAME_INIT_STATE = "initState";
     public static final String METHOD_NAME_INJECT_BUNDLE_VALUE = "injectBundleValue";
     public static final String METHOD_NAME_INIT_LIFECYCLE_FILED = "initLifecycleField";
+    public static final String METHOD_NAME_INJECT_VIEW = "injectView";
+    public static final String METHOD_NAME_INJECT_LISTENER = "injectListener";
+    public static final String METHOD_NAME_UNINJECT_VIEW = "uninjectView";
+    public static final String METHOD_NAME_UNINJECT_LISTENER = "uninjectListener";
+
 
     public static MethodSpec createInjectBundleValue(ControllerType controllerType,
                                                      BundleValueBindingProvider provider) {

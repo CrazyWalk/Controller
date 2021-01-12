@@ -6,22 +6,28 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 
+import org.checkerframework.checker.units.qual.A;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import cn.luyinbros.valleyframework.controller.binding.ActivityResultBinding;
+import cn.luyinbros.valleyframework.controller.binding.BuildViewBinding;
 import cn.luyinbros.valleyframework.controller.binding.BundleValueBinding;
 import cn.luyinbros.valleyframework.controller.binding.ControllerBinding;
 import cn.luyinbros.valleyframework.controller.binding.DisposeBinding;
 import cn.luyinbros.valleyframework.controller.binding.InitStateBinding;
 import cn.luyinbros.valleyframework.controller.binding.LifecycleBinding;
 import cn.luyinbros.valleyframework.controller.binding.PermissionResultBinding;
+import cn.luyinbros.valleyframework.controller.binding.ViewFieldBinding;
 import cn.luyinbros.valleyframework.controller.provider.ActivityResultBindingProvider;
+import cn.luyinbros.valleyframework.controller.provider.BindViewProvider;
 import cn.luyinbros.valleyframework.controller.provider.BundleValueBindingProvider;
 import cn.luyinbros.valleyframework.controller.provider.DisposeBindingProvider;
 import cn.luyinbros.valleyframework.controller.provider.InitStateBindingProvider;
 import cn.luyinbros.valleyframework.controller.provider.LifecycleBindingProvider;
+import cn.luyinbros.valleyframework.controller.provider.ListenerBindingProvider;
 import cn.luyinbros.valleyframework.controller.provider.PermissionResultBindingProvider;
 
 import static javax.lang.model.element.Modifier.PRIVATE;
@@ -36,6 +42,7 @@ class ControllerDelegateInfo {
     private final LifecycleBindingProvider lifecycleBindingProvider;
     private final ActivityResultBindingProvider activityResultBindingProvider;
     private final PermissionResultBindingProvider permissionResultBindingProvider;
+    private final BindViewProvider bindViewProvider;
     private final DisposeBindingProvider disposeBindingProvider;
 
     private ControllerDelegateInfo(ControllerBinding controllerBinding,
@@ -44,6 +51,7 @@ class ControllerDelegateInfo {
                                    LifecycleBindingProvider lifecycleBindingProvider,
                                    ActivityResultBindingProvider activityResultBindingProvider,
                                    PermissionResultBindingProvider permissionResultBindingProvider,
+                                   BindViewProvider bindViewProvider,
                                    DisposeBindingProvider disposeBindingProvider) {
         this.controllerBinding = controllerBinding;
         this.bundleValueBindingProvider = bundleValueBindingProvider;
@@ -51,11 +59,20 @@ class ControllerDelegateInfo {
         this.lifecycleBindingProvider = lifecycleBindingProvider;
         this.activityResultBindingProvider = activityResultBindingProvider;
         this.permissionResultBindingProvider = permissionResultBindingProvider;
+        this.bindViewProvider = bindViewProvider;
         this.disposeBindingProvider = disposeBindingProvider;
     }
 
     public void setParent(ControllerDelegateInfo mParent) {
         this.mParent = mParent;
+    }
+
+    public boolean isBuildNewView() {
+        if (mParent != null) {
+            return mParent.isBuildNewView() || bindViewProvider.isBuildNewView();
+        }
+
+        return false;
     }
 
     JavaFile brewJava() {
@@ -103,14 +120,14 @@ class ControllerDelegateInfo {
         final List<MethodSpec> generationMethodList = new ArrayList<>(buildInitState(result));
         buildSetIntent(result);
         generationMethodList.addAll(buildLifecycle(result));
+        generationMethodList.addAll(buildView(result));
         buildActivityResult(result);
         buildPermissionResult(result);
-        buildDispose(result);
+        generationMethodList.addAll(buildDispose(result));
         //generation method
         for (MethodSpec methodSpec : generationMethodList) {
             result.addMethod(methodSpec);
         }
-
 
         return result.build();
     }
@@ -184,6 +201,9 @@ class ControllerDelegateInfo {
         return Collections.emptyList();
     }
 
+    private List<MethodSpec> buildView(TypeSpec.Builder result) {
+        return bindViewProvider.code(controllerBinding.getTypeElement(), result, isBuildNewView());
+    }
 
     private void buildActivityResult(TypeSpec.Builder result) {
         if (activityResultBindingProvider.isEmpty()) {
@@ -218,25 +238,40 @@ class ControllerDelegateInfo {
     }
 
 
-    private void buildDispose(TypeSpec.Builder result) {
-        if (disposeBindingProvider.isEmpty()) {
-            return;
+    private List<MethodSpec> buildDispose(TypeSpec.Builder result) {
+        int needInitCount = 0;
+        needInitCount += disposeBindingProvider.isEmpty() ? 0 : 1;
+        needInitCount += bindViewProvider.isFieldEmpty() ? 0 : 1;
+        needInitCount += bindViewProvider.isListenerEmpty() ? 0 : 1;
+        if (needInitCount == 0) {
+            return Collections.emptyList();
         }
+        List<MethodSpec> specList = new ArrayList<>();
+
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("dispose")
                 .addAnnotation(Override.class)
                 .addModifiers(PROTECTED)
                 .returns(ClassName.VOID);
         methodBuilder.addStatement("super.dispose()");
 
-//        for (CodeBlock codeBlock : disposes) {
-//            methodBuilder.addCode(codeBlock);
-//        }
-
-        for (DisposeBinding binding : disposeBindingProvider.getDisposeBindings()) {
-            String methodName = binding.getMethodName();
-            methodBuilder.addStatement("target.$L()", methodName);
+        if (!disposeBindingProvider.isEmpty()) {
+            for (DisposeBinding binding : disposeBindingProvider.getDisposeBindings()) {
+                String methodName = binding.getMethodName();
+                methodBuilder.addStatement("target.$L()", methodName);
+            }
         }
+        if (!bindViewProvider.isListenerEmpty()) {
+            methodBuilder.addStatement("$L()", MethodFactory.METHOD_NAME_UNINJECT_LISTENER);
+            specList.add(bindViewProvider.createUninjectListener());
+        }
+
+        if (!bindViewProvider.isFieldEmpty()) {
+            methodBuilder.addStatement("$L()", MethodFactory.METHOD_NAME_UNINJECT_VIEW);
+            specList.add(bindViewProvider.createUninjectView());
+        }
+
         result.addMethod(methodBuilder.build());
+        return specList;
     }
 
 
@@ -259,14 +294,17 @@ class ControllerDelegateInfo {
         private final ActivityResultBindingProvider activityResultBindingProvider = new ActivityResultBindingProvider();
         private final PermissionResultBindingProvider permissionResultBindingProvider = new PermissionResultBindingProvider();
         private final DisposeBindingProvider disposeBindingProvider = new DisposeBindingProvider();
+        private final BindViewProvider bindViewProvider;
 
-        Builder(ControllerBinding controllerBinding) {
+        Builder(ControllerBinding controllerBinding, CompilerMessager messager) {
             this.controllerBinding = controllerBinding;
+            bindViewProvider = new BindViewProvider(controllerBinding, messager);
         }
 
         void addBinding(BundleValueBinding binding) {
             bundleValueBindingProvider.addBinding(binding);
         }
+
 
         void addBinding(InitStateBinding binding) {
             initStateBindingProvider.addBinding(binding);
@@ -288,6 +326,18 @@ class ControllerDelegateInfo {
             disposeBindingProvider.addBinding(binding);
         }
 
+        void addBinding(ViewFieldBinding binding) {
+            bindViewProvider.addBinding(binding);
+        }
+
+        void addBinding(BuildViewBinding binding) {
+            bindViewProvider.addBinding(binding);
+        }
+
+        public void setListenerBindingProvider(ListenerBindingProvider listenerBindingProvider) {
+            bindViewProvider.setListenerBindingProvider(listenerBindingProvider);
+        }
+
         ControllerDelegateInfo build() {
             return new ControllerDelegateInfo(controllerBinding,
                     bundleValueBindingProvider,
@@ -295,6 +345,7 @@ class ControllerDelegateInfo {
                     lifecycleBindingProvider,
                     activityResultBindingProvider,
                     permissionResultBindingProvider,
+                    bindViewProvider,
                     disposeBindingProvider);
         }
 

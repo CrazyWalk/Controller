@@ -8,9 +8,7 @@ import javax.lang.model.element.TypeElement;
 import cn.luyinbros.valleyframework.controller.ControllerType;
 import cn.luyinbros.valleyframework.controller.ResId;
 
-/**
- * 控制器绑定
- */
+
 public class ControllerBinding {
     private ResId layoutId;
     private ControllerType controllerType = ControllerType.OTHER;
@@ -19,7 +17,7 @@ public class ControllerBinding {
     private TypeName controllerTypeName;
     private TypeElement typeElement;
 
-    // 用jtree改为resId
+
     public ResId getLayoutId() {
         return layoutId;
     }
