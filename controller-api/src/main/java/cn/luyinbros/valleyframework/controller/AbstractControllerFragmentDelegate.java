@@ -24,8 +24,6 @@ public abstract class AbstractControllerFragmentDelegate implements ControllerFr
         this.sourceFragment = fragment;
     }
 
-
-
     @Nullable
     @Override
     public final View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -42,7 +40,6 @@ public abstract class AbstractControllerFragmentDelegate implements ControllerFr
 
     @Override
     public final void onViewCreated(@androidx.annotation.NonNull View view, @androidx.annotation.Nullable Bundle savedInstanceState) {
-
         mFragment.getViewLifecycleOwner().getLifecycle().addObserver(new LifecycleEventObserver() {
             @Override
             public void onStateChanged(@androidx.annotation.NonNull LifecycleOwner source, @androidx.annotation.NonNull Lifecycle.Event event) {

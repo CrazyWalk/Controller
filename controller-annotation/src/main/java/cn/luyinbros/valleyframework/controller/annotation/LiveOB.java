@@ -9,7 +9,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target({METHOD})
 public @interface LiveOB {
-    String value();
+
+    String[] value();
+
+    boolean forever() default false;
 }
 
 

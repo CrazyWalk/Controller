@@ -34,7 +34,6 @@ android {
 
 
 dependencies {
-
     implementation deps.androidx.compat
     implementation deps.androidx.recyclerview
     implementation deps.androidx.constraintlayout
@@ -43,8 +42,10 @@ dependencies {
     implementation project(':controller-annotation')
     //implementation "androidx.asynclayoutinflater:asynclayoutinflater:1.0.0"
     annotationProcessor project(':controller-complier-v2')
-
-
+    //lifeCycle
+    implementation deps.androidx.lifecycle.viewModel
+    implementation deps.androidx.lifecycle.liveData
+    implementation deps.androidx.lifecycle.savedstate
 
     //implementation "androidx.core:core-ktx:1.2.0"
     //implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"

@@ -12,4 +12,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(TYPE)
 public @interface Controller {
     @LayoutRes int value() default -1;
+
+    boolean scanViewModel() default false;
 }

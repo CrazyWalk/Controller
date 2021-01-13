@@ -14,13 +14,14 @@ import androidx.lifecycle.LifecycleOwner;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public abstract class AbstractControllerActivityDelegate implements ControllerActivityDelegate{
+public abstract class AbstractControllerActivityDelegate implements ControllerActivityDelegate {
     private AppCompatActivity sourceActivity;
     private Activity mActivity;
     private View mView;
 
     protected AbstractControllerActivityDelegate(AppCompatActivity activity) {
         this.sourceActivity = activity;
+
     }
 
 
@@ -40,9 +41,11 @@ public abstract class AbstractControllerActivityDelegate implements ControllerAc
                 sourceActivity.getLifecycle().addObserver(new LifecycleEventObserver() {
                     @Override
                     public void onStateChanged(@NonNull LifecycleOwner source, @androidx.annotation.NonNull Lifecycle.Event event) {
-                        didChangeAppLifecycleState(event);
-                        if (event == Lifecycle.Event.ON_DESTROY) {
-                            destroy();
+                        if (mView != null) {
+                            didChangeAppLifecycleState(event);
+                            if (event == Lifecycle.Event.ON_DESTROY) {
+                                destroy();
+                            }
                         }
                     }
                 });
@@ -67,7 +70,6 @@ public abstract class AbstractControllerActivityDelegate implements ControllerAc
     public void setIntent(Intent data) {
 
     }
-
 
 
     @Override

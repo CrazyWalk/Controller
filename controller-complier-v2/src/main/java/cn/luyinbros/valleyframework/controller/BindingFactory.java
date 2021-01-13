@@ -6,7 +6,10 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -17,6 +20,7 @@ import javax.lang.model.type.TypeMirror;
 
 import cn.luyinbros.valleyframework.controller.annotation.BundleValue;
 import cn.luyinbros.valleyframework.controller.annotation.DidChangeLifecycleEvent;
+import cn.luyinbros.valleyframework.controller.annotation.LiveOB;
 import cn.luyinbros.valleyframework.controller.annotation.OnActivityResult;
 import cn.luyinbros.valleyframework.controller.annotation.OnPermissionResult;
 import cn.luyinbros.valleyframework.controller.binding.ActivityResultBinding;
@@ -27,6 +31,7 @@ import cn.luyinbros.valleyframework.controller.binding.ControllerBinding;
 import cn.luyinbros.valleyframework.controller.binding.DisposeBinding;
 import cn.luyinbros.valleyframework.controller.binding.InitStateBinding;
 import cn.luyinbros.valleyframework.controller.binding.LifecycleBinding;
+import cn.luyinbros.valleyframework.controller.binding.LiveOBBinding;
 import cn.luyinbros.valleyframework.controller.binding.PermissionResultBinding;
 import cn.luyinbros.valleyframework.controller.binding.ViewFieldBinding;
 
@@ -102,6 +107,52 @@ public class BindingFactory {
         return BindingResult.createBindResult(new InitStateBinding(executableElement.getSimpleName().toString(), argumentClassName));
 
     }
+
+    public static BindingResult<LiveOBBinding> createLiveOBBinding(Element element) {
+
+        final ExecutableElement executableElement = ElementHelper.asExecutable(element);
+        final TypeMirror returnTypeMirror = executableElement.getReturnType();
+        if (returnTypeMirror.getKind() != TypeKind.VOID) {
+            return BindingResult.createErrorResult(element, "return type must void");
+        }
+        ClassName argumentClassName = null;
+        final List<? extends VariableElement> methodParameters = executableElement.getParameters();
+        int size = methodParameters.size();
+        if (size == 1) {
+            TypeMirror mirror = methodParameters.get(0).asType();
+            argumentClassName = TypeNameHelper.get(mirror);
+        } else if (size > 1) {
+            return BindingResult.createErrorResult(element, "parameters size <2");
+        }
+
+        final LiveOBBinding binding = new LiveOBBinding();
+        binding.setMethodName(executableElement.getSimpleName().toString());
+        binding.setParamClassName(argumentClassName);
+        final LiveOB liveOB = executableElement.getAnnotation(LiveOB.class);
+        binding.setForever(liveOB.forever());
+
+        {
+            final String[] bindArray = liveOB.value();
+            if (bindArray.length == 0) {
+                binding.setMap(Collections.emptyMap());
+            } else {
+                Map<String, String> data = new HashMap<>();
+                String[] result;
+                for (String s : bindArray) {
+                    result = s.split("[:]");
+                    if (result.length != 2) {
+                        return BindingResult.createErrorResult(element, "target: " + s + " format error. example->viewModel:livedata");
+                    } else {
+                        data.put(result[0], result[1]);
+                    }
+                }
+                binding.setMap(data);
+            }
+        }
+        return BindingResult.createBindResult(binding);
+
+    }
+
 
     public static BindingResult<LifecycleBinding> createLifecycleBinding(Element element) {
         ExecutableElement executableElement = ElementHelper.asExecutable(element);
@@ -311,7 +362,7 @@ public class BindingFactory {
                         argumentClassNames = ImmutableList.of(new FullTypeName(TypeNameHelper.get(mirror), mirror));
                     }
                 }
-            }else{
+            } else {
                 return BindingResult.createErrorResult(element, "not support argument");
             }
         }

@@ -35,6 +35,10 @@ public class CompilerMessager {
         messager.printMessage(Diagnostic.Kind.ERROR, message);
     }
 
+    public void noteMessage(String message){
+        messager.printMessage(Diagnostic.Kind.NOTE, message);
+    }
+
     public void printMessage(Diagnostic.Kind kind, Element element, String message, Object[] args) {
         if (args.length > 0) {
             message = String.format(message, args);

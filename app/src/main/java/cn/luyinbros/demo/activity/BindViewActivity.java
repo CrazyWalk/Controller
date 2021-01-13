@@ -12,6 +12,10 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 
+import androidx.lifecycle.SavedStateHandle;
+import androidx.lifecycle.ViewModel;
+import androidx.savedstate.SavedStateRegistry;
+
 import cn.luyinbros.valleyframework.controller.annotation.BindView;
 import cn.luyinbros.valleyframework.controller.annotation.BuildView;
 import cn.luyinbros.valleyframework.controller.annotation.Controller;
@@ -30,12 +34,11 @@ import cn.luyinbros.logger.Logger;
 import cn.luyinbros.logger.LoggerFactory;
 
 
-@Controller(R.layout.activity_bindview)
+//@Controller(R.layout.activity_bindview)
 public class BindViewActivity extends BaseActivity {
     private Logger logger = LoggerFactory.getLogger(BindViewActivity.class);
     @BindView(R.id.clickButton)
     Button button;
-
 
 
     @InitState

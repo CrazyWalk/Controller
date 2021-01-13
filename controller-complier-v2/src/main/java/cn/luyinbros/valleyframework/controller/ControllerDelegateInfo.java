@@ -19,6 +19,7 @@ import cn.luyinbros.valleyframework.controller.binding.ControllerBinding;
 import cn.luyinbros.valleyframework.controller.binding.DisposeBinding;
 import cn.luyinbros.valleyframework.controller.binding.InitStateBinding;
 import cn.luyinbros.valleyframework.controller.binding.LifecycleBinding;
+import cn.luyinbros.valleyframework.controller.binding.LiveOBBinding;
 import cn.luyinbros.valleyframework.controller.binding.PermissionResultBinding;
 import cn.luyinbros.valleyframework.controller.binding.ViewFieldBinding;
 import cn.luyinbros.valleyframework.controller.provider.ActivityResultBindingProvider;
@@ -28,7 +29,9 @@ import cn.luyinbros.valleyframework.controller.provider.DisposeBindingProvider;
 import cn.luyinbros.valleyframework.controller.provider.InitStateBindingProvider;
 import cn.luyinbros.valleyframework.controller.provider.LifecycleBindingProvider;
 import cn.luyinbros.valleyframework.controller.provider.ListenerBindingProvider;
+import cn.luyinbros.valleyframework.controller.provider.LiveOBBindingProvider;
 import cn.luyinbros.valleyframework.controller.provider.PermissionResultBindingProvider;
+import cn.luyinbros.valleyframework.controller.provider.ViewModelProvider;
 
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PROTECTED;
@@ -43,6 +46,8 @@ class ControllerDelegateInfo {
     private final ActivityResultBindingProvider activityResultBindingProvider;
     private final PermissionResultBindingProvider permissionResultBindingProvider;
     private final BindViewProvider bindViewProvider;
+    private final ViewModelProvider viewModelProvider;
+    private final LiveOBBindingProvider liveOBBindingProvider;
     private final DisposeBindingProvider disposeBindingProvider;
 
     private ControllerDelegateInfo(ControllerBinding controllerBinding,
@@ -52,6 +57,8 @@ class ControllerDelegateInfo {
                                    ActivityResultBindingProvider activityResultBindingProvider,
                                    PermissionResultBindingProvider permissionResultBindingProvider,
                                    BindViewProvider bindViewProvider,
+                                   LiveOBBindingProvider liveOBBindingProvider,
+                                   ViewModelProvider viewModelProvider,
                                    DisposeBindingProvider disposeBindingProvider) {
         this.controllerBinding = controllerBinding;
         this.bundleValueBindingProvider = bundleValueBindingProvider;
@@ -60,14 +67,16 @@ class ControllerDelegateInfo {
         this.activityResultBindingProvider = activityResultBindingProvider;
         this.permissionResultBindingProvider = permissionResultBindingProvider;
         this.bindViewProvider = bindViewProvider;
+        this.liveOBBindingProvider = liveOBBindingProvider;
+        this.viewModelProvider = viewModelProvider;
         this.disposeBindingProvider = disposeBindingProvider;
     }
 
-    public void setParent(ControllerDelegateInfo mParent) {
+    void setParent(ControllerDelegateInfo mParent) {
         this.mParent = mParent;
     }
 
-    public boolean isBuildNewView() {
+    private boolean isBuildNewView() {
         if (mParent != null) {
             return mParent.isBuildNewView() || bindViewProvider.isBuildNewView();
         }
@@ -293,11 +302,15 @@ class ControllerDelegateInfo {
         private final LifecycleBindingProvider lifecycleBindingProvider = new LifecycleBindingProvider();
         private final ActivityResultBindingProvider activityResultBindingProvider = new ActivityResultBindingProvider();
         private final PermissionResultBindingProvider permissionResultBindingProvider = new PermissionResultBindingProvider();
+        private final LiveOBBindingProvider liveOBBindingProvider = new LiveOBBindingProvider();
+        private ViewModelProvider viewModelProvider;
         private final DisposeBindingProvider disposeBindingProvider = new DisposeBindingProvider();
         private final BindViewProvider bindViewProvider;
+        private final CompilerMessager messager;
 
         Builder(ControllerBinding controllerBinding, CompilerMessager messager) {
             this.controllerBinding = controllerBinding;
+            this.messager = messager;
             bindViewProvider = new BindViewProvider(controllerBinding, messager);
         }
 
@@ -318,7 +331,7 @@ class ControllerDelegateInfo {
             activityResultBindingProvider.addBinding(binding);
         }
 
-        public void addBinding(PermissionResultBinding binding) {
+        void addBinding(PermissionResultBinding binding) {
             permissionResultBindingProvider.addBinding(binding);
         }
 
@@ -334,11 +347,22 @@ class ControllerDelegateInfo {
             bindViewProvider.addBinding(binding);
         }
 
-        public void setListenerBindingProvider(ListenerBindingProvider listenerBindingProvider) {
+        void addBinding(LiveOBBinding binding) {
+            liveOBBindingProvider.add(binding);
+        }
+
+        void setListenerBindingProvider(ListenerBindingProvider listenerBindingProvider) {
             bindViewProvider.setListenerBindingProvider(listenerBindingProvider);
         }
 
+        void setViewModelProvider(ViewModelProvider viewModelProvider) {
+            this.viewModelProvider = viewModelProvider;
+        }
+
         ControllerDelegateInfo build() {
+//            if (!liveOBBindingProvider.isEmpty()) {
+//                messager.noteMessage(liveOBBindingProvider + "");
+//            }
             return new ControllerDelegateInfo(controllerBinding,
                     bundleValueBindingProvider,
                     initStateBindingProvider,
@@ -346,6 +370,8 @@ class ControllerDelegateInfo {
                     activityResultBindingProvider,
                     permissionResultBindingProvider,
                     bindViewProvider,
+                    liveOBBindingProvider,
+                    viewModelProvider,
                     disposeBindingProvider);
         }
 

@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 public class ResolveViewModel extends ViewModel {
-    public final LiveData<String> a = new MutableLiveData<>();
+    public final MutableLiveData<String> a = new MutableLiveData<>();
     private LiveData<String> b;
 
     public LiveData<String> getB() {

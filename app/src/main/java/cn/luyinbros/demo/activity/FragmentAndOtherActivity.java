@@ -25,7 +25,7 @@ import cn.luyinbros.demo.fragment.OnActivityResultFragment;
 import cn.luyinbros.demo.fragment.OnPermissionResultFragment;
 import cn.luyinbros.demo.mock.Mock;
 
-@Controller(R.layout.activity_fragment_other)
+//@Controller(R.layout.activity_fragment_other)
 public class FragmentAndOtherActivity extends BaseActivity {
 
     @BindView(R.id.recyclerView)

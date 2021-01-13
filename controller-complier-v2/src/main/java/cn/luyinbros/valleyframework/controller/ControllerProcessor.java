@@ -60,9 +60,11 @@ import cn.luyinbros.valleyframework.controller.binding.ControllerBinding;
 import cn.luyinbros.valleyframework.controller.binding.DisposeBinding;
 import cn.luyinbros.valleyframework.controller.binding.InitStateBinding;
 import cn.luyinbros.valleyframework.controller.binding.LifecycleBinding;
+import cn.luyinbros.valleyframework.controller.binding.LiveOBBinding;
 import cn.luyinbros.valleyframework.controller.binding.PermissionResultBinding;
 import cn.luyinbros.valleyframework.controller.binding.ViewFieldBinding;
 import cn.luyinbros.valleyframework.controller.provider.ListenerBindingProvider;
+import cn.luyinbros.valleyframework.controller.provider.ViewModelProvider;
 
 import static cn.luyinbros.valleyframework.controller.ElementHelper.getSuperClass;
 import static java.lang.Enum.valueOf;
@@ -184,9 +186,23 @@ public class ControllerProcessor extends AbstractProcessor {
         if (notEnsureBindView(env, builderMap, erasedTargetNames)) {
             return Collections.emptyMap();
         }
+        //liveOB
+        if (notEnsureLiveOB(env, builderMap, erasedTargetNames)) {
+            return Collections.emptyMap();
+        }
         //listener
         for (Map.Entry<TypeElement, ControllerDelegateInfo.Builder> entry : builderMap.entrySet()) {
             entry.getValue().setListenerBindingProvider(ListenerBindingProvider.of(entry.getKey(), rsProvider));
+        }
+        //viewModel
+        {
+            ViewModelProvider provider;
+            for (Map.Entry<TypeElement, ControllerDelegateInfo.Builder> entry : builderMap.entrySet()) {
+                provider = new ViewModelProvider();
+                provider.scanViewModel(messager,entry.getKey());
+
+                entry.getValue().setViewModelProvider(provider);
+            }
         }
 
         final Map<TypeElement, ControllerDelegateInfo> controllerDelegateMap = new LinkedHashMap<>();
@@ -337,6 +353,49 @@ public class ControllerProcessor extends AbstractProcessor {
         }
         return false;
     }
+
+    private boolean notEnsureLiveOB(RoundEnvironment env,
+                                    Map<TypeElement, ControllerDelegateInfo.Builder> builderMap,
+                                    Set<TypeElement> erasedTargetNames) {
+        for (Element element : env.getElementsAnnotatedWith(LiveOB.class)) {
+            if (!SuperficialValidation.validateElement(element)) continue;
+            try {
+                if (notParseLiveOB(element, builderMap, erasedTargetNames)) {
+                    return true;
+                }
+            } catch (Exception e) {
+                messager.errorElement(element, e);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean notParseLiveOB(Element element,
+                                   Map<TypeElement, ControllerDelegateInfo.Builder> builderMap,
+                                   Set<TypeElement> erasedTargetNames) {
+        if (checkNotController(element.getEnclosingElement())) {
+            return true;
+        }
+        if (isInaccessibleElement(element, LiveOB.class, "method")) {
+            return true;
+        }
+        if (isNotMethodElement(element, LiveOB.class)) {
+            return true;
+        }
+        TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
+        final ControllerDelegateInfo.Builder builder = builderMap.get(enclosingElement);
+        if (builder != null) {
+            BindingResult<LiveOBBinding> bindingResult = BindingFactory.createLiveOBBinding(element);
+            if (checkNotBindResult(bindingResult)) {
+                return true;
+            }
+            builder.addBinding(bindingResult.getBinding());
+            erasedTargetNames.add(enclosingElement);
+        }
+        return false;
+    }
+
 
     private boolean notEnsureBuildView(RoundEnvironment env,
                                        Map<TypeElement, ControllerDelegateInfo.Builder> builderMap,
