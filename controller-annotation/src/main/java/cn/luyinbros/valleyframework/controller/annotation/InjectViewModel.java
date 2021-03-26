@@ -8,19 +8,20 @@ import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+
 @Retention(RUNTIME)
-@Target({FIELD, METHOD})
-public @interface ViewModel {
+@Target({FIELD})
+public @interface InjectViewModel {
     String value() default "";
 
-    GenerateType generateType() default GenerateType.NONE;
+    FactoryType generateType() default FactoryType.DEFAULT;
 
-    ProviderType providerType() default ProviderType.NONE;
+    ProviderType providerType() default ProviderType.DEFAULT;
 
 
-    enum GenerateType {
+    enum FactoryType {
         /**
-         * 不生成
+         * 空构造器工厂
          */
         NONE,
         /**
@@ -30,10 +31,6 @@ public @interface ViewModel {
     }
 
     enum ProviderType {
-        /**
-         * call ViewModel#constructor
-         */
-        NONE,
         /**
          * by ViewModelProvider
          */

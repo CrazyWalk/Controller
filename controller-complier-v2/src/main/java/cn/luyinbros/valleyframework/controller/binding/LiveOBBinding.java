@@ -11,8 +11,8 @@ import java.util.Map;
 public class LiveOBBinding {
     private String methodName;
     private ClassName paramClassName;
-    private Map<String, String> map ;
-    private boolean isForever;
+    private String viewModel;
+    private String liveData;
 
     public String getMethodName() {
         return methodName;
@@ -30,20 +30,20 @@ public class LiveOBBinding {
         this.paramClassName = paramClassName;
     }
 
-    public void setMap(Map<String, String> map) {
-        this.map = map;
+    public String getViewModel() {
+        return viewModel;
     }
 
-    public Map<String, String> getMap() {
-        return map;
+    public void setViewModel(String viewModel) {
+        this.viewModel = viewModel;
     }
 
-    public boolean isForever() {
-        return isForever;
+    public String getLiveData() {
+        return liveData;
     }
 
-    public void setForever(boolean forever) {
-        isForever = forever;
+    public void setLiveData(String liveData) {
+        this.liveData = liveData;
     }
 
     @Override
@@ -51,8 +51,8 @@ public class LiveOBBinding {
         return "LiveOBBinding{" +
                 "methodName='" + methodName + '\'' +
                 ", paramClassName=" + paramClassName +
-                ", map=" + map +
-                ", isForever=" + isForever +
+                ", viewModel='" + viewModel + '\'' +
+                ", liveData='" + liveData + '\'' +
                 '}';
     }
 }

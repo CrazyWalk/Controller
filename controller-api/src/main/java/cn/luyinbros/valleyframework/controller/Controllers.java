@@ -18,6 +18,9 @@ import androidx.annotation.StringRes;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
@@ -56,6 +59,11 @@ public final class Controllers {
             controllerPlugin = new ControllerPluginImpl();
         }
         return controllerPlugin;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static void liveDataObserve(LifecycleOwner owner, LiveData liveData, Observer observer) {
+        liveData.observe(owner, observer);
     }
 
     public static boolean isGranted(int[] grantResults) {

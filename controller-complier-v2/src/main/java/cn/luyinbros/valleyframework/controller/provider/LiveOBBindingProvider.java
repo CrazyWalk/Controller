@@ -18,6 +18,10 @@ public class LiveOBBindingProvider {
     }
 
 
+    public List<LiveOBBinding> getBindings() {
+        return bindings;
+    }
+
     @Override
     public String toString() {
         return "LiveOBBindingProvider{" +

@@ -33,6 +33,7 @@ public class Constants {
     public static final ClassName ENUM_LIFECYCLE_EVENT = ClassName.get(Lifecycle.Event.class);
     public static final ClassName CLASS_OBJECTS = ClassName.get("java.util", "Objects");
     public static final ClassName CLASS_STRING = ClassName.get("java.lang", "String");
+    public static final ClassName CLASS_OBJECT =ClassName.get("java.lang","Object");
 
     //sdk
     public static final ClassName ANNOTATION_UI_THREAD = ClassName.get("androidx.annotation", "UiThread");
@@ -41,4 +42,5 @@ public class Constants {
     public static final ClassName CLASS_VIEW = ClassName.get("android.view", "View");
     public static final ClassName CLASS_INTENT = ClassName.get("android.content", "Intent");
     public static final ClassName CLASS_BUNDLE = ClassName.bestGuess(TYPE_BUNDLE);
+    public static final ClassName INTERFACE_LIFECYCLE_OBSERVER=ClassName.get("androidx.lifecycle","Observer");
 }

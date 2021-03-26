@@ -49,6 +49,7 @@ public abstract class AbstractControllerActivityDelegate implements ControllerAc
                         }
                     }
                 });
+                initViewModel();
             }
         }
 
@@ -98,6 +99,10 @@ public abstract class AbstractControllerActivityDelegate implements ControllerAc
     }
 
 
+    protected void initViewModel() {
+
+    }
+
     protected void didChangeAppLifecycleState(Lifecycle.Event event) {
         //empty
     }
@@ -110,5 +115,11 @@ public abstract class AbstractControllerActivityDelegate implements ControllerAc
         return mView;
     }
 
+    public final LifecycleOwner getLifecycleOwner() {
+        if (mActivity instanceof LifecycleOwner) {
+            return (LifecycleOwner) mActivity;
+        }
+        return null;
+    }
 
 }

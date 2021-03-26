@@ -2,17 +2,14 @@ package cn.luyinbros.valleyframework.controller.binding;
 
 import com.squareup.javapoet.ClassName;
 
-
 import javax.annotation.Nullable;
 
 
-public class InitStateBinding {
+public class InitViewModelBinding {
     private final String methodName;
-    private final ClassName paramClassName;
 
-    public InitStateBinding(String methodName, ClassName paramClassName) {
+    public InitViewModelBinding(String methodName) {
         this.methodName = methodName;
-        this.paramClassName = paramClassName;
 
     }
 
@@ -20,17 +17,11 @@ public class InitStateBinding {
         return methodName;
     }
 
-    @Nullable
-    public ClassName getParamClassName() {
-        return paramClassName;
-    }
-
 
     @Override
     public String toString() {
-        return "InitStateBinding{" +
+        return "InitViewModelBinding{" +
                 "methodName='" + methodName + '\'' +
-                ", paramClassName=" + paramClassName +
                 '}';
     }
 

@@ -49,6 +49,7 @@ import cn.luyinbros.valleyframework.controller.annotation.Controller;
 import cn.luyinbros.valleyframework.controller.annotation.DidChangeLifecycleEvent;
 import cn.luyinbros.valleyframework.controller.annotation.Dispose;
 import cn.luyinbros.valleyframework.controller.annotation.InitState;
+import cn.luyinbros.valleyframework.controller.annotation.InitViewModel;
 import cn.luyinbros.valleyframework.controller.annotation.LiveOB;
 import cn.luyinbros.valleyframework.controller.annotation.OnActivityResult;
 import cn.luyinbros.valleyframework.controller.annotation.OnPermissionResult;
@@ -59,6 +60,7 @@ import cn.luyinbros.valleyframework.controller.binding.BundleValueBinding;
 import cn.luyinbros.valleyframework.controller.binding.ControllerBinding;
 import cn.luyinbros.valleyframework.controller.binding.DisposeBinding;
 import cn.luyinbros.valleyframework.controller.binding.InitStateBinding;
+import cn.luyinbros.valleyframework.controller.binding.InitViewModelBinding;
 import cn.luyinbros.valleyframework.controller.binding.LifecycleBinding;
 import cn.luyinbros.valleyframework.controller.binding.LiveOBBinding;
 import cn.luyinbros.valleyframework.controller.binding.PermissionResultBinding;
@@ -67,7 +69,6 @@ import cn.luyinbros.valleyframework.controller.provider.ListenerBindingProvider;
 import cn.luyinbros.valleyframework.controller.provider.ViewModelProvider;
 
 import static cn.luyinbros.valleyframework.controller.ElementHelper.getSuperClass;
-import static java.lang.Enum.valueOf;
 import static javax.lang.model.element.ElementKind.CLASS;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.STATIC;
@@ -120,6 +121,7 @@ public class ControllerProcessor extends AbstractProcessor {
         annotationCls.add(OnPermissionResult.class);
         annotationCls.add(BindView.class);
         annotationCls.add(BundleValue.class);
+        annotationCls.add(InitViewModel.class);
         Set<String> result = new HashSet<>();
         for (Class<? extends Annotation> cls : annotationCls) {
             result.add(cls.getCanonicalName());
@@ -161,6 +163,9 @@ public class ControllerProcessor extends AbstractProcessor {
         if (notEnsureInitState(env, builderMap, erasedTargetNames)) {
             return Collections.emptyMap();
         }
+        if (notEnsureInitViewModel(env, builderMap, erasedTargetNames)) {
+            return Collections.emptyMap();
+        }
         //Lifecycle
         if (notEnsureLifecycle(env, builderMap, erasedTargetNames)) {
             return Collections.emptyMap();
@@ -186,20 +191,23 @@ public class ControllerProcessor extends AbstractProcessor {
         if (notEnsureBindView(env, builderMap, erasedTargetNames)) {
             return Collections.emptyMap();
         }
-        //liveOB
-        if (notEnsureLiveOB(env, builderMap, erasedTargetNames)) {
-            return Collections.emptyMap();
-        }
+
         //listener
         for (Map.Entry<TypeElement, ControllerDelegateInfo.Builder> entry : builderMap.entrySet()) {
             entry.getValue().setListenerBindingProvider(ListenerBindingProvider.of(entry.getKey(), rsProvider));
         }
+        //liveOB
+        if (notEnsureLiveOB(env, builderMap, erasedTargetNames)) {
+            return Collections.emptyMap();
+        }
         //viewModel
+
+
         {
             ViewModelProvider provider;
             for (Map.Entry<TypeElement, ControllerDelegateInfo.Builder> entry : builderMap.entrySet()) {
                 provider = new ViewModelProvider();
-                provider.scanViewModel(messager,entry.getKey());
+                provider.scanViewModel(messager, entry.getKey());
 
                 entry.getValue().setViewModelProvider(provider);
             }
@@ -328,6 +336,24 @@ public class ControllerProcessor extends AbstractProcessor {
         return false;
     }
 
+    private boolean notEnsureInitViewModel(RoundEnvironment env,
+                                       Map<TypeElement, ControllerDelegateInfo.Builder> builderMap,
+                                       Set<TypeElement> erasedTargetNames) {
+        for (Element element : env.getElementsAnnotatedWith(InitViewModel.class)) {
+            if (!SuperficialValidation.validateElement(element)) continue;
+            try {
+                if (notParseInitViewModel(element, builderMap, erasedTargetNames)) {
+                    return true;
+                }
+            } catch (Exception e) {
+                messager.errorElement(element, e);
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     private boolean notParseInitState(Element element,
                                       Map<TypeElement, ControllerDelegateInfo.Builder> builderMap,
                                       Set<TypeElement> erasedTargetNames) {
@@ -353,6 +379,33 @@ public class ControllerProcessor extends AbstractProcessor {
         }
         return false;
     }
+
+    private boolean notParseInitViewModel(Element element,
+                                      Map<TypeElement, ControllerDelegateInfo.Builder> builderMap,
+                                      Set<TypeElement> erasedTargetNames) {
+
+        if (checkNotController(element.getEnclosingElement())) {
+            return true;
+        }
+        if (isInaccessibleElement(element, InitViewModel.class, "method")) {
+            return true;
+        }
+        if (isNotMethodElement(element, InitViewModel.class)) {
+            return true;
+        }
+        TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
+        final ControllerDelegateInfo.Builder builder = builderMap.get(enclosingElement);
+        if (builder != null) {
+            BindingResult<InitViewModelBinding> bindingResult = BindingFactory.createInitViewModelBinding(element);
+            if (checkNotBindResult(bindingResult)) {
+                return true;
+            }
+            builder.addBinding(bindingResult.getBinding());
+            erasedTargetNames.add(enclosingElement);
+        }
+        return false;
+    }
+
 
     private boolean notEnsureLiveOB(RoundEnvironment env,
                                     Map<TypeElement, ControllerDelegateInfo.Builder> builderMap,

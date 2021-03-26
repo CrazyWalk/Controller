@@ -6,7 +6,7 @@ import android.widget.TextView;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.Observer;
 
 
 import java.util.Timer;
@@ -16,20 +16,21 @@ import cn.luyinbros.demo.R;
 import cn.luyinbros.demo.base.BaseActivity;
 import cn.luyinbros.logger.Logger;
 import cn.luyinbros.logger.LoggerFactory;
+import cn.luyinbros.valleyframework.controller.annotation.InjectViewModel;
 import cn.luyinbros.valleyframework.controller.annotation.BindView;
 import cn.luyinbros.valleyframework.controller.annotation.Controller;
 import cn.luyinbros.valleyframework.controller.annotation.DidChangeLifecycleEvent;
 import cn.luyinbros.valleyframework.controller.annotation.Dispose;
 import cn.luyinbros.valleyframework.controller.annotation.InitState;
+import cn.luyinbros.valleyframework.controller.annotation.InitViewModel;
 import cn.luyinbros.valleyframework.controller.annotation.LiveOB;
-import cn.luyinbros.valleyframework.controller.annotation.ViewModel;
 
 @Controller(value = R.layout.activity_live_data, scanViewModel = true)
 public class LiveDataActivity extends BaseActivity {
     private final Logger logger = LoggerFactory.getLogger(LiveDataActivity.class);
     @BindView(R.id.textView)
     TextView textView;
-    @ViewModel
+    @InjectViewModel
     ResolveViewModel resolveViewModel;
     private Timer timer;
 
@@ -48,6 +49,11 @@ public class LiveDataActivity extends BaseActivity {
         }, 0, 1000);
     }
 
+    @InitViewModel
+    void initViewModel() {
+
+    }
+
     @DidChangeLifecycleEvent(value = Lifecycle.Event.ON_CREATE, count = 1)
     void initView() {
         logger.debug("initView");
@@ -61,6 +67,7 @@ public class LiveDataActivity extends BaseActivity {
         });
     }
 
+
     @DidChangeLifecycleEvent(value = Lifecycle.Event.ON_DESTROY)
     void exitView() {
         logger.debug("exitView:" + textView);
@@ -72,15 +79,15 @@ public class LiveDataActivity extends BaseActivity {
     }
 
 
-    @LiveOB("resolveViewModel:a")
+    @LiveOB("resolveViewModel.a")
     void onAChanged(String a) {
 
     }
 
-    @LiveOB("resolveViewModel:b")
-    void onBChanged(String b) {
-
-    }
+//    @LiveOB("resolveViewModel.getB()")
+//    void onBChanged(String b) {
+//
+//    }
 
 
     public ResolveViewModel getResolveViewModel() {

@@ -18,6 +18,7 @@ import cn.luyinbros.valleyframework.controller.binding.BundleValueBinding;
 import cn.luyinbros.valleyframework.controller.binding.ControllerBinding;
 import cn.luyinbros.valleyframework.controller.binding.DisposeBinding;
 import cn.luyinbros.valleyframework.controller.binding.InitStateBinding;
+import cn.luyinbros.valleyframework.controller.binding.InitViewModelBinding;
 import cn.luyinbros.valleyframework.controller.binding.LifecycleBinding;
 import cn.luyinbros.valleyframework.controller.binding.LiveOBBinding;
 import cn.luyinbros.valleyframework.controller.binding.PermissionResultBinding;
@@ -27,6 +28,7 @@ import cn.luyinbros.valleyframework.controller.provider.BindViewProvider;
 import cn.luyinbros.valleyframework.controller.provider.BundleValueBindingProvider;
 import cn.luyinbros.valleyframework.controller.provider.DisposeBindingProvider;
 import cn.luyinbros.valleyframework.controller.provider.InitStateBindingProvider;
+import cn.luyinbros.valleyframework.controller.provider.InitViewModelProvider;
 import cn.luyinbros.valleyframework.controller.provider.LifecycleBindingProvider;
 import cn.luyinbros.valleyframework.controller.provider.ListenerBindingProvider;
 import cn.luyinbros.valleyframework.controller.provider.LiveOBBindingProvider;
@@ -46,6 +48,7 @@ class ControllerDelegateInfo {
     private final ActivityResultBindingProvider activityResultBindingProvider;
     private final PermissionResultBindingProvider permissionResultBindingProvider;
     private final BindViewProvider bindViewProvider;
+    private final InitViewModelProvider initViewModelProvider;
     private final ViewModelProvider viewModelProvider;
     private final LiveOBBindingProvider liveOBBindingProvider;
     private final DisposeBindingProvider disposeBindingProvider;
@@ -59,7 +62,8 @@ class ControllerDelegateInfo {
                                    BindViewProvider bindViewProvider,
                                    LiveOBBindingProvider liveOBBindingProvider,
                                    ViewModelProvider viewModelProvider,
-                                   DisposeBindingProvider disposeBindingProvider) {
+                                   DisposeBindingProvider disposeBindingProvider,
+                                   InitViewModelProvider initViewModelProvider) {
         this.controllerBinding = controllerBinding;
         this.bundleValueBindingProvider = bundleValueBindingProvider;
         this.initStateBindingProvider = initStateBindingProvider;
@@ -70,6 +74,7 @@ class ControllerDelegateInfo {
         this.liveOBBindingProvider = liveOBBindingProvider;
         this.viewModelProvider = viewModelProvider;
         this.disposeBindingProvider = disposeBindingProvider;
+        this.initViewModelProvider = initViewModelProvider;
     }
 
     void setParent(ControllerDelegateInfo mParent) {
@@ -130,6 +135,7 @@ class ControllerDelegateInfo {
         buildSetIntent(result);
         generationMethodList.addAll(buildLifecycle(result));
         generationMethodList.addAll(buildView(result));
+        generationMethodList.addAll(buildInitViewModel(result));
         buildActivityResult(result);
         buildPermissionResult(result);
         generationMethodList.addAll(buildDispose(result));
@@ -193,6 +199,35 @@ class ControllerDelegateInfo {
             }
         }
 
+        result.addMethod(methodBuilder.build());
+        return generationMethodList;
+    }
+
+    private List<MethodSpec> buildInitViewModel(TypeSpec.Builder result) {
+        int needInitCount = 0;
+        needInitCount += initViewModelProvider.isEmpty() ? 0 : 1;
+        needInitCount += liveOBBindingProvider.isEmpty() ? 0 : 1;
+
+        if (needInitCount == 0) {
+            return Collections.emptyList();
+        }
+        final List<MethodSpec> generationMethodList = new ArrayList<>();
+
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(MethodFactory.METHOD_NAME_INIT_VIEW_MODEL)
+                .addAnnotation(Override.class)
+                .addModifiers(PROTECTED)
+                .returns(ClassName.VOID);
+        methodBuilder.addStatement("super.initViewModel()");
+
+        if (!initViewModelProvider.isEmpty()) {
+            for (InitViewModelBinding binding : initViewModelProvider.getInitViewModelBindings()) {
+                methodBuilder.addStatement("target.$L()", binding.getMethodName());
+            }
+        }
+        if (!liveOBBindingProvider.isEmpty()) {
+            generationMethodList.add(MethodFactory.createLiveDataObservers(liveOBBindingProvider));
+            methodBuilder.addStatement("$L()",MethodFactory.METHOD_NAME_OBSERVE_LIVE_DATA);
+        }
         result.addMethod(methodBuilder.build());
         return generationMethodList;
     }
@@ -303,6 +338,7 @@ class ControllerDelegateInfo {
         private final ActivityResultBindingProvider activityResultBindingProvider = new ActivityResultBindingProvider();
         private final PermissionResultBindingProvider permissionResultBindingProvider = new PermissionResultBindingProvider();
         private final LiveOBBindingProvider liveOBBindingProvider = new LiveOBBindingProvider();
+        private final InitViewModelProvider initViewModelProvider = new InitViewModelProvider();
         private ViewModelProvider viewModelProvider;
         private final DisposeBindingProvider disposeBindingProvider = new DisposeBindingProvider();
         private final BindViewProvider bindViewProvider;
@@ -351,6 +387,10 @@ class ControllerDelegateInfo {
             liveOBBindingProvider.add(binding);
         }
 
+        void addBinding(InitViewModelBinding binding) {
+            initViewModelProvider.addBinding(binding);
+        }
+
         void setListenerBindingProvider(ListenerBindingProvider listenerBindingProvider) {
             bindViewProvider.setListenerBindingProvider(listenerBindingProvider);
         }
@@ -372,7 +412,8 @@ class ControllerDelegateInfo {
                     bindViewProvider,
                     liveOBBindingProvider,
                     viewModelProvider,
-                    disposeBindingProvider);
+                    disposeBindingProvider,
+                    initViewModelProvider);
         }
 
 

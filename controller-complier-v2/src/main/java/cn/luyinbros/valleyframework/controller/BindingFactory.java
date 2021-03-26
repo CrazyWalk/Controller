@@ -30,6 +30,7 @@ import cn.luyinbros.valleyframework.controller.binding.BundleValueBinding;
 import cn.luyinbros.valleyframework.controller.binding.ControllerBinding;
 import cn.luyinbros.valleyframework.controller.binding.DisposeBinding;
 import cn.luyinbros.valleyframework.controller.binding.InitStateBinding;
+import cn.luyinbros.valleyframework.controller.binding.InitViewModelBinding;
 import cn.luyinbros.valleyframework.controller.binding.LifecycleBinding;
 import cn.luyinbros.valleyframework.controller.binding.LiveOBBinding;
 import cn.luyinbros.valleyframework.controller.binding.PermissionResultBinding;
@@ -129,24 +130,15 @@ public class BindingFactory {
         binding.setMethodName(executableElement.getSimpleName().toString());
         binding.setParamClassName(argumentClassName);
         final LiveOB liveOB = executableElement.getAnnotation(LiveOB.class);
-        binding.setForever(liveOB.forever());
 
         {
-            final String[] bindArray = liveOB.value();
-            if (bindArray.length == 0) {
-                binding.setMap(Collections.emptyMap());
+            final String value = liveOB.value();
+            String[] result = value.split("[.]");
+            if (result.length != 2) {
+                return BindingResult.createErrorResult(element, "target: " + value + " format error. example->viewModel.livedata");
             } else {
-                Map<String, String> data = new HashMap<>();
-                String[] result;
-                for (String s : bindArray) {
-                    result = s.split("[:]");
-                    if (result.length != 2) {
-                        return BindingResult.createErrorResult(element, "target: " + s + " format error. example->viewModel:livedata");
-                    } else {
-                        data.put(result[0], result[1]);
-                    }
-                }
-                binding.setMap(data);
+                binding.setViewModel(result[0]);
+                binding.setLiveData(result[1]);
             }
         }
         return BindingResult.createBindResult(binding);
@@ -370,6 +362,22 @@ public class BindingFactory {
         final String methodName = executableElement.getSimpleName().toString();
         return BindingResult.createBindResult(new BuildViewBinding(methodName,
                 argumentClassNames, returnClassName));
+
+    }
+
+    public static BindingResult<InitViewModelBinding> createInitViewModelBinding(Element element) {
+
+        final ExecutableElement executableElement = ElementHelper.asExecutable(element);
+        final TypeMirror returnTypeMirror = executableElement.getReturnType();
+        if (returnTypeMirror.getKind() != TypeKind.VOID) {
+            return BindingResult.createErrorResult(element, "return type must void");
+        }
+        final List<? extends VariableElement> methodParameters = executableElement.getParameters();
+        int size = methodParameters.size();
+        if (size > 0) {
+            return BindingResult.createErrorResult(element, "must not param");
+        }
+        return BindingResult.createBindResult(new InitViewModelBinding(executableElement.getSimpleName().toString()));
 
     }
 

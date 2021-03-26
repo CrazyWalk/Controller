@@ -10,11 +10,12 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ViewModelProvider;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public abstract class AbstractControllerFragmentDelegate implements ControllerFragmentDelegate{
+public abstract class AbstractControllerFragmentDelegate implements ControllerFragmentDelegate {
     private Fragment sourceFragment;
     private Fragment mFragment;
     private BuildContext mBuildContext;
@@ -49,6 +50,7 @@ public abstract class AbstractControllerFragmentDelegate implements ControllerFr
                 }
             }
         });
+        initViewModel();
         mBuildContext = null;
     }
 
@@ -82,7 +84,6 @@ public abstract class AbstractControllerFragmentDelegate implements ControllerFr
     }
 
 
-
     protected void initState(BuildContext buildContext) {
         //empty
     }
@@ -90,6 +91,11 @@ public abstract class AbstractControllerFragmentDelegate implements ControllerFr
     @Nullable
     protected View buildView(BuildContext buildContext) {
         return null;
+    }
+
+
+    protected void initViewModel() {
+
     }
 
 
@@ -105,5 +111,7 @@ public abstract class AbstractControllerFragmentDelegate implements ControllerFr
         return mView;
     }
 
-
+    public final LifecycleOwner getLifecycleOwner() {
+        return mFragment.getViewLifecycleOwner();
+    }
 }

@@ -37,33 +37,33 @@ public class LiveDataBinding {
     }
 
     public static LiveDataBinding create(Element element) {
-        final ExecutableElement executableElement = ElementHelper.asExecutable(element);
-        final TypeMirror returnType = executableElement.getReturnType();
-        if (returnType.getKind() != TypeKind.VOID) {
-            CompileMessager.error(element, "invalidate");
-            return null;
-        }
-
-        LiveDataBinding binding = new LiveDataBinding();
-        binding.params = new ArrayList<>();
-        binding.methodName = executableElement.getSimpleName().toString();
-        LiveOB liveOB = executableElement.getAnnotation(LiveOB.class);
-        binding.resolve = liveOB.value();
-        boolean hasError = true;
-
-        final List<? extends VariableElement> parameters = executableElement.getParameters();
-        final int parametersSize = parameters.size();
-
-
-        if (parametersSize == 0) {
-            hasError = false;
-        } else if (parametersSize == 1) {
-            VariableElement variableElement = parameters.get(0);
-            TypeMirror typeMirror = variableElement.asType();
-            hasError = false;
-            binding.params.add(new FullTypeName(TypeName.get(typeMirror), typeMirror));
-        }
-        return binding;
+//        final ExecutableElement executableElement = ElementHelper.asExecutable(element);
+//        final TypeMirror returnType = executableElement.getReturnType();
+//        if (returnType.getKind() != TypeKind.VOID) {
+//            CompileMessager.error(element, "invalidate");
+//            return null;
+//        }
+//
+//        LiveDataBinding binding = new LiveDataBinding();
+//        binding.params = new ArrayList<>();
+//        binding.methodName = executableElement.getSimpleName().toString();
+//        LiveOB liveOB = executableElement.getAnnotation(LiveOB.class);
+//        binding.resolve = liveOB.value();
+//        boolean hasError = true;
+//
+//        final List<? extends VariableElement> parameters = executableElement.getParameters();
+//        final int parametersSize = parameters.size();
+//
+//
+//        if (parametersSize == 0) {
+//            hasError = false;
+//        } else if (parametersSize == 1) {
+//            VariableElement variableElement = parameters.get(0);
+//            TypeMirror typeMirror = variableElement.asType();
+//            hasError = false;
+//            binding.params.add(new FullTypeName(TypeName.get(typeMirror), typeMirror));
+//        }
+        return new LiveDataBinding();
 
     }
 
